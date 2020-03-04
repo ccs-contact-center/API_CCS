@@ -1,6 +1,5 @@
 var router = require("express").Router();
-var apicache = require("apicache");
-var cache = apicache.middleware;
+
 var constants = require("../../../../constants");
 var utils = require("../../../../utils.js");
 var sql = require("mssql");

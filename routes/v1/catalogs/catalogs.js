@@ -5,8 +5,7 @@ var sql = require("mssql");
 var moment = require("moment");
 var constants = require("../../../constants");
 var exjwt = require("express-jwt");
-var apicache = require("apicache");
-var cache = apicache.middleware;
+
 
 const jwtMW = exjwt({
   secret: "Grhzu92E_s3cr3t"
@@ -21,7 +20,7 @@ const dbCluster = {
   requestTimeout: 800000
 };
 
-router.get("/clavesEstados/:estado", cache("3600 minutes"), function(req, res) {
+router.get("/clavesEstados/:estado", function(req, res) {
   sql.connect(dbCluster, function(err) {
     if (err) console.log(err);
 
@@ -38,7 +37,7 @@ router.get("/clavesEstados/:estado", cache("3600 minutes"), function(req, res) {
   });
 });
 
-router.get("/codigo_postal/:cp", cache("3600 minutes"), function(req, res) {
+router.get("/codigo_postal/:cp", function(req, res) {
   var cp = req.params.cp;
   sql
     .connect(constants.dbConfig)
@@ -113,7 +112,7 @@ router.get("/codigo_postal/:cp", cache("3600 minutes"), function(req, res) {
     });
 });
 
-router.get("/colonia/:estado/:col", cache("3600 minutes"), function(req, res) {
+router.get("/colonia/:estado/:col", function(req, res) {
   var cp = req.params.col;
   var edo = req.params.estado;
   sql
@@ -190,7 +189,7 @@ router.get("/colonia/:estado/:col", cache("3600 minutes"), function(req, res) {
     });
 });
 
-router.get("/municipios", cache("3600 minutes"), function(req, res) {
+router.get("/municipios", function(req, res) {
   sql.connect(dbCluster, function(err) {
     if (err) console.log(err);
 
@@ -207,7 +206,7 @@ router.get("/municipios", cache("3600 minutes"), function(req, res) {
   });
 });
 
-router.get("/colonias", cache("3600 minutes"), function(req, res) {
+router.get("/colonias", function(req, res) {
   sql.connect(dbCluster, function(err) {
     if (err) console.log(err);
 

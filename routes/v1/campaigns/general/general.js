@@ -1,6 +1,5 @@
 var router = require('express').Router();
-var apicache = require('apicache')
-var cache = apicache.middleware
+
 
 var constants = require('../../../../constants');
 var utils = require("../../../../utils.js");
@@ -14,18 +13,18 @@ const jwtMW = exjwt({
 
 
 //Mantenido por compatibilidad con la app
-router.get('/Application_Data',jwtMW,cache('5 minutes'),function(req, res) {
+router.get('/Application_Data',jwtMW,function(req, res) {
     var procedure = "[CCS].[dbo].[REP_WEB_REST_Aplicacion] @CAMPANIA = " + req.query.campania + " , @TIPO = " + req.query.tipo;
     utils.executeQuery(res, procedure);
 })
 
 
-router.get('/General',jwtMW,cache('5 minutes'),function(req, res) {
+router.get('/General',jwtMW,function(req, res) {
     var procedure = "[CCS].[dbo].[REP_WEB_REST_Campanias_General] @TOTALIZADO =" + req.query.totalizado + ",@CAMPANIA = " + req.query.campania + " , @TIPO = " + req.query.tipo;
     utils.executeQuery(res, procedure);
 })
 
-router.get('/Objetivos',jwtMW,cache('5 minutes'),function(req, res) {
+router.get('/Objetivos',jwtMW,function(req, res) {
     var query = "SELECT DISTINCT id_campania ,campania ,SLA,ABA,AHT,TT ,OCCY,QA FROM CCS.dbo.Campanias WHERE id_campania = " + req.query.campania;
     utils.executeQuery(res, query);
 })

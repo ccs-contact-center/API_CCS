@@ -5,8 +5,7 @@ var sql = require("mssql");
 var moment = require("moment");
 var constants = require("../../../constants");
 var exjwt = require("express-jwt");
-var apicache = require("apicache");
-var cache = apicache.middleware;
+
 
 const jwtMW = exjwt({
   secret: "Grhzu92E_s3cr3t"
@@ -21,7 +20,7 @@ const dbCluster = {
   requestTimeout: 800000
 };
 
-router.get('/', cache('5 minutes'), function (req, res) {
+router.get('/', function (req, res) {
 
 
   res.send('Respuesta desde ' + os.hostname())

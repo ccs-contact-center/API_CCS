@@ -1,11 +1,12 @@
 var express = require("express");
+
 var bodyParser = require("body-parser");
 var exjwt = require("express-jwt");
 var path = require("path");
 var compression = require("compression");
 
-const PORT = process.env.PORT
-//const PORT = 3020;
+//const PORT = process.env.PORT
+const PORT = 52135;
 var app = express();
 
 
