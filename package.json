@@ -1,0 +1,25 @@
+{
+  "name": "api_ccs",
+  "version": "0.0.1",
+  "description": "API Rest de CCS",
+  "main": "API.js",
+  "scripts": {
+    "start": "nodemon API"
+  },
+  "author": "Isaac Contreras",
+  "license": "ISC",
+  "dependencies": {
+    "apicache": "^1.5.1",
+    "compression": "^1.7.4",
+    "express": "^4.17.1",
+    "express-jwt": "^5.3.1",
+    "jsonwebtoken": "^8.5.1",
+    "md5": "^2.2.1",
+    "moment": "^2.24.0",
+    "mssql": "3.0.0",
+    "node-fetch": "^2.6.0",
+    "nodemailer": "^6.3.0",
+    "simple-git": "^1.122.0",
+    "xml2json-light": "^1.0.6"
+  }
+}
