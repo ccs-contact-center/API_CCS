@@ -21,4 +21,8 @@ router.get('/',cache('5 minutes'),function(req, res) {
   
   })
 
+  router.get('/daniel'), function(req,res){
+      
+  }
+
 module.exports = router;
