@@ -27,7 +27,6 @@ module.exports = {
   },
 
   currentHost: "http://api.ccscontactcenter.com/",
-
   mailAccount: "ccs.notificaciones@ccscontactcenter.com",
   mailPass: "Pow25925",
   mailHost: "smtp.office365.com",
