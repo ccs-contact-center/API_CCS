@@ -486,14 +486,15 @@ router.post("/llamadas", function(req, res) {
       "CONVERT(DATETIME,'" + req.body.fecha_nacimiento + "',103)";
   }
 
-  if (req.body.tip_2 === "") {
+  /*if (req.body.tip_2 === "") {
     tip_2 = "NULL";
   } else {
     tip_2 = req.body.tip_2;
-  }
+  }*/
 
   var query =
-    "INSERT INTO CasasAtlas.dbo.SYS_Generales (nombres,paterno,materno,sexo,fecha_nacimiento,estado_civil,tipo_vial,calle,exterior,interior,entrecalles,cp,colonia,delagacion_municipio,estado,tel1,ext1,tel2,ext2,email1,email2,tipificacion,tip_2,comentarios,fecha_registro,usuario_registro) OUTPUT Inserted.id VALUES ('" +
+    "INSERT INTO CasasAtlas.dbo.SYS_Generales (nombres,paterno,materno,sexo,fecha_nacimiento,estado_civil,tipo_vial,calle,exterior,interior,entrecalles,cp,colonia,delagacion_municipio,estado,tel1,ext1,tel2,ext2,email1,email2,tipificacion,comentarios,fecha_registro,usuario_registro) OUTPUT Inserted.id VALUES ('" +
+    //"INSERT INTO CasasAtlas.dbo.SYS_Generales (nombres,paterno,materno,sexo,fecha_nacimiento,estado_civil,tipo_vial,calle,exterior,interior,entrecalles,cp,colonia,delagacion_municipio,estado,tel1,ext1,tel2,ext2,email1,email2,tipificacion,tip_2,comentarios,fecha_registro,usuario_registro) OUTPUT Inserted.id VALUES ('" +
     req.body.nombres +
     "', '" +
     req.body.paterno +
@@ -538,8 +539,8 @@ router.post("/llamadas", function(req, res) {
     "','" +
     req.body.tip_1 +
     "','" +
-    req.body.tip_2 +
-    "','" +
+    //req.body.tip_2 +
+    //"','" +
     req.body.comentarios +
     "', GETDATE(),'" +
     req.body.id_user +
