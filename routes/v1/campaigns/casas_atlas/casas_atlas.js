@@ -539,8 +539,8 @@ router.post("/llamadas", function(req, res) {
     "','" +
     req.body.tip_1 +
     "','" +
-    //req.body.tip_2 +
-    //"','" +
+    req.body.tip_2 +
+    "','" +
     req.body.comentarios +
     "', GETDATE(),'" +
     req.body.id_user +
