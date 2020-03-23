@@ -258,7 +258,7 @@ router.get("/salesforceCCSAuth", (req, res) => {
     });
 });
 
-router.get("/salesforceQuery", (req, res) => {
+router.post("/salesforceQuery", (req, res) => {
   var sfdcURL = req.body.instance + req.body.query;
 
   var req_sfdcOpts = {
