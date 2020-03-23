@@ -12,7 +12,6 @@ const jwtMW = exjwt({
   secret: "Grhzu92E_s3cr3t"
 });
 
-
 var fs = require("fs");
 var nJwt = require("njwt");
 var base64url = require("base64-url");
@@ -234,29 +233,49 @@ function encryptUsingPrivateKey_nJWTLib(claims) {
 }
 
 router.get("/salesforceCCSAuth", (req, res) => {
-    var sfdcURL = "https://login.salesforce.com/services/oauth2/token";
+  var sfdcURL = "https://login.salesforce.com/services/oauth2/token";
 
-    var token = getJWTSignedToken_nJWTLib("iacontrerasg@icloud.com");
-  
-    var paramBody =
-      "grant_type=" +
-      base64url.escape("urn:ietf:params:oauth:grant-type:jwt-bearer") +
-      "&assertion=" +
-      token;
-    var req_sfdcOpts = {
-      url: sfdcURL,
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: paramBody
-    };
-  
-    fetch(sfdcURL, req_sfdcOpts)
-      .then(res => {
-        return res.json();
-      })
-      .then(json => {
-        res.send(json);
-      });
+  var token = getJWTSignedToken_nJWTLib("iacontrerasg@icloud.com");
+
+  var paramBody =
+    "grant_type=" +
+    base64url.escape("urn:ietf:params:oauth:grant-type:jwt-bearer") +
+    "&assertion=" +
+    token;
+  var req_sfdcOpts = {
+    url: sfdcURL,
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: paramBody
+  };
+
+  fetch(sfdcURL, req_sfdcOpts)
+    .then(res => {
+      return res.json();
+    })
+    .then(json => {
+      res.send(json);
+    });
+});
+
+router.get("/salesforceQuery", (req, res) => {
+  var sfdcURL = req.body.instance + req.body.query;
+
+  var req_sfdcOpts = {
+    url: sfdcURL,
+    method: "GET",
+    headers: {
+      Authorization: "Bearer " + req.body.token
+    }
+  };
+
+  fetch(sfdcURL, req_sfdcOpts)
+    .then(res => {
+      return res.json();
+    })
+    .then(json => {
+      res.send(json);
+    });
 });
 
 module.exports = router;
