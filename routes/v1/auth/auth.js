@@ -82,11 +82,11 @@ router.post("/Login", (req, res) => {
 });
 
 router.post("/Coronalogin", (req, res) => {
-  const { usuario } = req.body;
+  const { username, password } = req.body;
 
   var query =
     "SELECT * FROM [Coronabase].[dbo].[Coronaempleados] WHERE usuario = '" +
-    usuario +
+    username +
     "'";
 
   sql.connect(constants.dbCluster, function(err) {
