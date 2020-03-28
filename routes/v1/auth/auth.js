@@ -81,6 +81,43 @@ router.post("/Login", (req, res) => {
   });
 });
 
+router.post("/Coronalogin", (req, res) => {
+  const { usuario } = req.body;
+
+  var query =
+    "SELECT * FROM [Coronabase].[dbo].[Coronaempleados] WHERE usuario = '" +
+    usuario +
+    "'";
+
+  sql.connect(constants.dbCluster, function(err) {
+    if (err) console.log(err);
+
+    var request = new sql.Request();
+
+    request.query(query, function(err, recordset) {
+      if (err) console.log(err);
+
+      if (recordset.length == 1) {
+        let token = jwt.sign(recordset[0], "Grhzu92E_s3cr3t", {
+          expiresIn: 1800
+        });
+        res.json({
+          sucess: true,
+          err: null,
+          token,
+          recordset
+        });
+      } else {
+        res.status(401).json({
+          sucess: false,
+          token: null,
+          err: "Username or password is incorrect"
+        });
+      }
+    });
+  });
+});
+
 router.post("/getToken", (req, res) => {
   const { username, mail } = req.body;
 
