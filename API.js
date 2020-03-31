@@ -5,10 +5,9 @@ var exjwt = require("express-jwt");
 var path = require("path");
 var compression = require("compression");
 
-const PORT = process.env.PORT
+const PORT = process.env.PORT;
 //const PORT = 8082;
 var app = express();
-
 
 app.use(compression());
 
@@ -49,3 +48,4 @@ const server = app.listen(PORT, function() {
 //exports.app = app
 
 app.use("/v1", require("./routes/v1"));
+app.use("/test", require("./routes/test"));
