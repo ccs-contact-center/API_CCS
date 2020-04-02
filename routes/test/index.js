@@ -76,7 +76,7 @@ router.put("/post/:id", function(req, res) {
     request.input("contenido", req.body.contenido);
 
     request.query(
-      "UPDATE EjemploCRUD.dbo.Posts SET titulo=@titulo, contenido=@contenido, fecha_update=GETDATE() OUTPUT INSERTED.id WHERE id =@id",
+      "UPDATE EjemploCRUD.dbo.Posts SET titulo=@titulo, contenido=@contenido, fecha_update=GETDATE() OUTPUT INSERTED.* WHERE id =@id",
 
       function(err, recordset) {
         if (err) console.log(err);
@@ -96,7 +96,7 @@ router.delete("/post/:id", function(req, res) {
     request.input("id", req.params.id);
 
     request.query(
-      "DELETE EjemploCRUD.dbo.Posts OUTPUT DELETED.id WHERE id =@id",
+      "DELETE EjemploCRUD.dbo.Posts OUTPUT DELETED.* WHERE id =@id",
 
       function(err, recordset) {
         if (err) console.log(err);
