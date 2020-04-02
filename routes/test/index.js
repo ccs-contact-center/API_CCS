@@ -54,7 +54,7 @@ router.post("/post", function(req, res) {
     request.input("contenido", req.body.contenido);
 
     request.query(
-      "INSERT INTO EjemploCRUD.dbo.Posts (fecha_alta,titulo, contenido) OUTPUT INSERTED.id,INSERTED.fecha_alta,INSERTED.fecha_update,INSERTED.titulo,INSERTED.contenido VALUES (GETDATE(),@titulo,@contenido)",
+      "INSERT INTO EjemploCRUD.dbo.Posts (fecha_alta,titulo, contenido) OUTPUT INSERTED.* VALUES (GETDATE(),@titulo,@contenido)",
 
       function(err, recordset) {
         if (err) console.log(err);
