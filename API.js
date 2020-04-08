@@ -22,7 +22,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static(path.join(__dirname, "client/build")));
+//app.use(express.static(path.join(__dirname, "client/build")));
 app.use(express.static("C:/iisnode"));
 
 app.use(express.json({ limit: "50mb" }));
@@ -47,6 +47,7 @@ const server = app.listen(PORT, function () {
 //Para correr como modulo
 //exports.app = app
 const io = socketIo(server); // < Interesting!
+
 
 app.io = io;
 
