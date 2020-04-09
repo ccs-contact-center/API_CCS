@@ -51,12 +51,13 @@ const io = socketIo(server); // < Interesting!
 app.io = io;
 
 io.on("connection", function (socket) {
+  socket.broadcast.emit("msgNotification", socket.id + " se conectó");
   socket.on("connect", (reason) => {
-    io.emit("msgNotification", socket.id + " se conectó");
+    //io.emit("msgNotification", socket.id + " se conectó");
   });
-  io.emit("msgNotification", socket.id + " se conectó");
   socket.on("disconnect", (reason) => {
-    io.emit("msgNotification", socket.id + " se desconectó");
+    socket.broadcast.emit("msgNotification", socket.id + " se desconectó");
+    //io.emit("msgNotification", socket.id + " se desconectó");
   });
 });
 
