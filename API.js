@@ -48,24 +48,20 @@ const server = app.listen(PORT, function () {
 //exports.app = app
 const io = socketIo(server); // < Interesting!
 
-
 app.io = io;
 
-/*io.on("connection", function (socket) {
-  console.log(`client: ${socket.id}`);
-  socket.emit("server/random", Math.random());
-  //enviando numero aleatorio cada dos segundo al cliente
-  setInterval(() => {
-    socket.emit("server/random", Math.random());
-  }, 2000);
-  //recibiendo el numero aleatorio del cliente
-  socket.on("client/random", (num) => {
-    console.log(num);
+io.on("connection", function (socket) {
+  socket.on("connect", (reason) => {
+    io.emit("msgNotification", socket.id + " se conectó");
   });
-});*/
+  io.emit("msgNotification", socket.id + " se conectó");
+  socket.on("disconnect", (reason) => {
+    io.emit("msgNotification", socket.id + " se desconectó");
+  });
+});
 
 app.get("/Socket", function (req, res) {
-  req.app.io.emit("server/random", req.query.msg);
+  req.app.io.emit("msgNotification", req.query.msg);
   res.send("OK");
 });
 
