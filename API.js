@@ -50,7 +50,7 @@ const io = socketIo(server); // < Interesting!
 
 app.io = io;
 
-io.on("connection", function (socket) {
+/*io.on("connection", function (socket) {
   socket.broadcast.emit("msgNotification", socket.id + " se conectó");
   socket.on("connect", (reason) => {
     //io.emit("msgNotification", socket.id + " se conectó");
@@ -58,6 +58,46 @@ io.on("connection", function (socket) {
   socket.on("disconnect", (reason) => {
     socket.broadcast.emit("msgNotification", socket.id + " se desconectó");
     //io.emit("msgNotification", socket.id + " se desconectó");
+  });
+});
+*/
+
+let connectedUserMap = new Map();
+
+io.on("connection", function (socket) {
+  let connectedUserId = socket.id;
+  //console.log("conected", connectedUserMap);
+  //add property value when assigning user to map
+  connectedUserMap.set(socket.id, { status: "online", name: null });
+
+  socket.on("recieveUserName", function (data) {
+    //find user by there socket in the map the update name property of value
+
+    var users = [];
+    connectedUserMap.forEach((test) => {
+      users.push(test.name);
+    });
+
+    //var difficult_tasks = users.filter((task) => task === data.name);
+
+    //console.log(difficult_tasks.length);
+
+    let user = connectedUserMap.get(connectedUserId);
+    user.name = data.name;
+
+    
+    socket.emit("msgNotification", "Correcto");
+    socket.broadcast.emit("msgNotification", user.name + " se conectó");
+
+    console.log("conected", connectedUserMap);
+  });
+
+  socket.on("disconnect", function () {
+    //get access to the user currently being used via map.
+    let user = connectedUserMap.get(connectedUserId);
+    user.status = "offline";
+    connectedUserMap.delete(connectedUserId);
+    //console.log("disconected", connectedUserMap);
   });
 });
 
