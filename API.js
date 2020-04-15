@@ -50,55 +50,69 @@ const io = socketIo(server); // < Interesting!
 
 app.io = io;
 
-/*io.on("connection", function (socket) {
-  socket.broadcast.emit("msgNotification", socket.id + " se conectó");
-  socket.on("connect", (reason) => {
-    //io.emit("msgNotification", socket.id + " se conectó");
-  });
-  socket.on("disconnect", (reason) => {
-    socket.broadcast.emit("msgNotification", socket.id + " se desconectó");
-    //io.emit("msgNotification", socket.id + " se desconectó");
-  });
-});
-*/
+var clients = {};
+io.sockets.on("connection", (socket) => {
 
-let connectedUserMap = new Map();
 
-io.on("connection", function (socket) {
-  let connectedUserId = socket.id;
-  //console.log("conected", connectedUserMap);
-  //add property value when assigning user to map
-  connectedUserMap.set(socket.id, { status: "online", name: null });
-
-  socket.on("recieveUserName", function (data) {
-    //find user by there socket in the map the update name property of value
-
-    var users = [];
-    connectedUserMap.forEach((test) => {
-      users.push(test.name);
-    });
-
-    //var difficult_tasks = users.filter((task) => task === data.name);
-
-    //console.log(difficult_tasks.length);
-
-    let user = connectedUserMap.get(connectedUserId);
-    user.name = data.name;
-
-    
-    socket.emit("msgNotification", "Correcto");
-    socket.broadcast.emit("msgNotification", user.name + " se conectó");
-
-    console.log("conected", connectedUserMap);
+  socket.on("loginUser", (data) => {
+    if (clients[data.username]) {
+      //Indica que el usuario ya está conectado y no lo registra en la userlist
+      socket.emit("msgNotification", {
+        type: "danger",
+        body: "¡El usuario ya estaba conectado!",
+      });
+    } else {
+      //Registra al usuario en la userlist, le envia la confirmación y a los demas usuarios les notifica
+      clients[data.username] = {
+        socket: socket.id,
+      };
+      socket.emit("msgNotification", {
+        type: "success",
+        body: "¡Correcto!",
+      });
+      socket.broadcast.emit("msgNotification", {
+        type: "info",
+        body: data.username + " se conectó",
+      });
+    }
+    console.table(clients);
   });
 
-  socket.on("disconnect", function () {
-    //get access to the user currently being used via map.
-    let user = connectedUserMap.get(connectedUserId);
-    user.status = "offline";
-    connectedUserMap.delete(connectedUserId);
-    //console.log("disconected", connectedUserMap);
+  //The above code is for the client
+
+  /*
+   socket.emit("private-message", {
+    "username": $(this).find("input:first").val(),
+    "content": $(this).find("textarea").val()
+   });
+   */
+
+  socket.on("private-message", (data) => {
+    if (clients[data.username]) {
+      io.sockets.connected[clients[data.username].socket].emit(
+        "msgNotification",
+        {
+          type: "info",
+          body: data,
+        }
+      );
+    } else {
+      //console.log("User does not exist: " + data.username);
+    }
   });
+
+  //Removing the socket on disconnect
+  socket.on("disconnect", () => {
+    for (var name in clients) {
+      if (clients[name].socket === socket.id) {
+        delete clients[name];
+        break;
+      }
+    }
+    console.log(clients);
+  });
+
+
 });
 
 app.get("/Socket", function (req, res) {
