@@ -2,14 +2,14 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var exjwt = require("express-jwt");
 var path = require("path");
-var compression = require("compression");
+//var compression = require("compression");
 var socketIo = require("socket.io")
 
 const PORT = process.env.PORT;
 //const PORT = 8082;
 var app = express();
 
-app.use(compression());
+//app.use(compression());
 
 //Enabling CORS on API
 app.use((req, res, next) => {
@@ -46,13 +46,14 @@ const server = app.listen(PORT, function () {
 
 //Para correr como modulo
 //exports.app = app
-const io = socketIo(server); // < Interesting!
+const io = socketIo(server,{perMessageDeflate:false,pingInterval:'2000', pingTimeout:'10000'}); // < Interesting!
 
 app.io = io;
 
 var clients = {};
 io.sockets.on("connection", (socket) => {
   console.log(socket.id);
+
   socket.on("loginUser", (data) => {
     if (clients[data.username]) {
       //Indica que el usuario ya está conectado y no lo registra en la userlist
@@ -77,6 +78,8 @@ io.sockets.on("connection", (socket) => {
     console.table(clients);
   });
 
+  
+
   //The above code is for the client
 
   /*
@@ -85,7 +88,6 @@ io.sockets.on("connection", (socket) => {
     "content": $(this).find("textarea").val()
    });
    */
-
   socket.on("private-message", (data) => {
     if (clients[data.username]) {
       io.sockets.connected[clients[data.username].socket].emit(
