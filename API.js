@@ -3,7 +3,7 @@ var bodyParser = require("body-parser");
 var exjwt = require("express-jwt");
 var path = require("path");
 //var compression = require("compression");
-var socketIo = require("socket.io")
+var socketIo = require("socket.io");
 
 const PORT = process.env.PORT;
 //const PORT = 8082;
@@ -46,14 +46,16 @@ const server = app.listen(PORT, function () {
 
 //Para correr como modulo
 //exports.app = app
-const io = socketIo(server,{perMessageDeflate:false,pingInterval:'2000', pingTimeout:'10000'}); // < Interesting!
+const io = socketIo(server, {
+  perMessageDeflate: false,
+  pingInterval: "2000",
+  pingTimeout: "10000",
+}); // < Interesting!
 
 app.io = io;
 
 var clients = {};
 io.sockets.on("connection", (socket) => {
-  console.log(socket.id);
-
   socket.on("loginUser", (data) => {
     if (clients[data.username]) {
       //Indica que el usuario ya está conectado y no lo registra en la userlist
@@ -78,7 +80,27 @@ io.sockets.on("connection", (socket) => {
     console.table(clients);
   });
 
-  
+  socket.on("logoutUser", (data) => {
+    if (clients[data.username]) {
+      //Indica que el usuario ya está conectado y no lo registra en la userlist
+      for (var name in clients) {
+        if (clients[name].socket === socket.id) {
+          delete clients[name];
+          break;
+        }
+      }
+      socket.broadcast.emit("msgNotification", {
+        type: "info",
+        body: data.username + " se desconectó",
+      });
+    } else {
+      socket.emit("msgNotification", {
+        type: "success",
+        body: "Nada!",
+      });
+    }
+    console.table(clients);
+  });
 
   //The above code is for the client
 
@@ -87,7 +109,7 @@ io.sockets.on("connection", (socket) => {
     "username": $(this).find("input:first").val(),
     "content": $(this).find("textarea").val()
    });
-   */
+  
   socket.on("private-message", (data) => {
     if (clients[data.username]) {
       io.sockets.connected[clients[data.username].socket].emit(
@@ -111,7 +133,7 @@ io.sockets.on("connection", (socket) => {
       }
     }
     console.log(clients);
-  });
+  }); */
 });
 
 app.get("/Socket", function (req, res) {
