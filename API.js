@@ -141,5 +141,8 @@ app.get("/Socket", function (req, res) {
   res.send("OK");
 });
 
+app.get("/SocketClientes", function (req, res) {
+  res.send(clients);
+});
 app.use("/v1", require("./routes/v1"));
 app.use("/test", require("./routes/test"));
