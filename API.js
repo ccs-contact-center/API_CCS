@@ -56,6 +56,7 @@ app.io = io;
 
 var clients = {};
 io.sockets.on("connection", (socket) => {
+  var sid = socket.id;
   socket.on("loginUser", (data) => {
     if (clients[data.username]) {
       //Indica que el usuario ya está conectado y no lo registra en la userlist
@@ -80,9 +81,24 @@ io.sockets.on("connection", (socket) => {
     console.table(clients);
   });
 
-  socket.on("logoutUser", (data) => {
+  socket.on("browserRefresh", (data) => {
     if (clients[data.username]) {
       //Indica que el usuario ya está conectado y no lo registra en la userlist
+      socket.emit("msgNotification", {
+        type: "danger",
+        body: "¡El usuario ya estaba conectado!",
+      });
+    } else {
+      //Registra al usuario en la userlist, le envia la confirmación y a los demas usuarios les notifica
+      clients[data.username] = {
+        socket: socket.id,
+      };
+    }
+    console.table(clients);
+  });
+
+  socket.on("logoutUser", (data) => {
+    if (clients[data.username]) {
       for (var name in clients) {
         if (clients[name].socket === socket.id) {
           delete clients[name];
@@ -102,8 +118,33 @@ io.sockets.on("connection", (socket) => {
     console.table(clients);
   });
 
-  //The above code is for the client
+  socket.on("disconnect", (data) => {
+    var name = null;
+    for (name in clients) {
+      if (clients[name].socket === socket.id) {
+        delete clients[name];
+        break;
+      }
+    }
 
+    setTimeout(() => {
+      var result = clients[name];
+
+      if (result !== undefined) {
+      } else {
+        socket.broadcast.emit("msgNotification", {
+          type: "info",
+          body: name + " se desconectó",
+        });
+      }
+    }, 10000);
+
+    console.table(clients);
+  });
+
+  // clean up when a user leaves, and broadcast it to other users
+
+  //The above code is for the client
   /*
    socket.emit("private-message", {
     "username": $(this).find("input:first").val(),
@@ -136,13 +177,19 @@ io.sockets.on("connection", (socket) => {
   }); */
 });
 
-app.get("/Socket", function (req, res) {
-  req.app.io.emit("msgNotification", req.query.msg);
-  res.send("OK");
-});
-
-app.get("/SocketClientes", function (req, res) {
+app.get("/Socket/Clientes", function (req, res) {
   res.send(clients);
 });
+
+app.get("/Socket/Clientes/:username", function (req, res) {
+  var result = clients[req.params.username];
+
+  if (result !== undefined) {
+    res.send({ logged: true });
+  } else {
+    res.send({ logged: false });
+  }
+});
+
 app.use("/v1", require("./routes/v1"));
 app.use("/test", require("./routes/test"));
