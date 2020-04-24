@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 app.use(express.static("C:/iisnode"));
 
 app.use(express.json({ limit: "50mb" }));
-//app.use(express.urlencoded({limit: '50mb'}));
+
 //Used to parse json bodys from requests
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -56,7 +56,7 @@ app.io = io;
 
 var clients = {};
 io.sockets.on("connection", (socket) => {
-  var sid = socket.id;
+
   socket.on("loginUser", (data) => {
     if (clients[data.username]) {
       //Indica que el usuario ya está conectado y no lo registra en la userlist
@@ -117,6 +117,7 @@ io.sockets.on("connection", (socket) => {
     }
     console.table(clients);
   });
+
 
   socket.on("disconnect", (data) => {
     var name = null;
