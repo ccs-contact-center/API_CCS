@@ -9,6 +9,7 @@ router.use('/edenred', require('./edenred'));
 router.use('/televia', require('./televia'));
 router.use('/televisa', require('./televisa'));
 router.use('/casas_atlas', require('./casas_atlas'));
+router.use('/altan_redes', require('./altan_redes'));
 // etc.
 
 module.exports = router;
