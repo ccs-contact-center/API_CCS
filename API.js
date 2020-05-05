@@ -8,8 +8,8 @@ var fetch = require("node-fetch");
 //var compression = require("compression");
 var socketIo = require("socket.io");
 
-//const PORT = process.env.PORT;
-const PORT = 8082;
+const PORT = process.env.PORT;
+//const PORT = 8082;
 var app = express();
 
 //app.use(compression());
