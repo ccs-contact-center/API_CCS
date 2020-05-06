@@ -60,16 +60,23 @@ echo.on("connection", function (conn) {
   var lenght = clients.length;
   while (lenght--) {
     if (clients[lenght] !== undefined) {
-      clients[lenght].write("test");
+      clients[lenght].write("connected " + conn);
     }
   }
 
+
   conn.on("close", function () {
+    var lenght = clients.length;
+    while (lenght--) {
+      if (clients[lenght] !== undefined) {
+        clients[lenght].write("disconnected " + conn);
+      }
+    }
+
     delete clients[index];
-    console.log("Adios, cara de verga " + conn);
   });
+
   conn.on("data", function (message) {
-    console.log("message " + conn, message);
     conn.write(message);
   });
 });
