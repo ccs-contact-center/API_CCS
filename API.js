@@ -3,10 +3,9 @@ var bodyParser = require("body-parser");
 var exjwt = require("express-jwt");
 var path = require("path");
 var convert = require("xml-js");
-
+const sockjs = require("sockjs");
 var fetch = require("node-fetch");
 //var compression = require("compression");
-var socketIo = require("socket.io");
 
 const PORT = process.env.PORT;
 //const PORT = 8082;
@@ -49,135 +48,33 @@ const server = app.listen(PORT, function () {
 
 //Para correr como modulo
 //exports.app = app
-const io = socketIo(server, {
-  perMessageDeflate: false,
-  pingInterval: "2000",
-  pingTimeout: "10000",
-}); // < Interesting!
 
-app.io = io;
-
-var clients = {};
-io.sockets.on("connection", (socket) => {
-  socket.on("loginUser", (data) => {
-    if (clients[data.username]) {
-      //Indica que el usuario ya está conectado y no lo registra en la userlist
-      socket.emit("msgNotification", {
-        type: "danger",
-        body: "¡El usuario ya estaba conectado!",
-      });
-    } else {
-      //Registra al usuario en la userlist, le envia la confirmación y a los demas usuarios les notifica
-      clients[data.username] = {
-        socket: socket.id,
-      };
-      socket.emit("msgNotification", {
-        type: "success",
-        body: "¡Correcto!",
-      });
-      socket.broadcast.emit("msgNotification", {
-        type: "info",
-        body: data.username + " se conectó",
-      });
-    }
-    console.table(clients);
-  });
-
-  socket.on("browserRefresh", (data) => {
-    if (clients[data.username]) {
-      //Indica que el usuario ya está conectado y no lo registra en la userlist
-      socket.emit("msgNotification", {
-        type: "danger",
-        body: "¡El usuario ya estaba conectado!",
-      });
-    } else {
-      //Registra al usuario en la userlist, le envia la confirmación y a los demas usuarios les notifica
-      clients[data.username] = {
-        socket: socket.id,
-      };
-    }
-    console.table(clients);
-  });
-
-  socket.on("logoutUser", (data) => {
-    if (clients[data.username]) {
-      for (var name in clients) {
-        if (clients[name].socket === socket.id) {
-          delete clients[name];
-          break;
-        }
-      }
-      socket.broadcast.emit("msgNotification", {
-        type: "info",
-        body: data.username + " se desconectó",
-      });
-    } else {
-      socket.emit("msgNotification", {
-        type: "success",
-        body: "Nada!",
-      });
-    }
-    console.table(clients);
-  });
-
-  socket.on("disconnect", (data) => {
-    var name = null;
-    for (name in clients) {
-      if (clients[name].socket === socket.id) {
-        delete clients[name];
-        break;
-      }
-    }
-
-    setTimeout(() => {
-      var result = clients[name];
-
-      if (result !== undefined) {
-      } else {
-        socket.broadcast.emit("msgNotification", {
-          type: "info",
-          body: name + " se desconectó",
-        });
-      }
-    }, 10000);
-
-    console.table(clients);
-  });
-
-  // clean up when a user leaves, and broadcast it to other users
-
-  //The above code is for the client
-  /*
-   socket.emit("private-message", {
-    "username": $(this).find("input:first").val(),
-    "content": $(this).find("textarea").val()
-   });
-  
-  socket.on("private-message", (data) => {
-    if (clients[data.username]) {
-      io.sockets.connected[clients[data.username].socket].emit(
-        "msgNotification",
-        {
-          type: "info",
-          body: data,
-        }
-      );
-    } else {
-      //console.log("User does not exist: " + data.username);
-    }
-  });
-
-  //Removing the socket on disconnect
-  socket.on("disconnect", () => {
-    for (var name in clients) {
-      if (clients[name].socket === socket.id) {
-        delete clients[name];
-        break;
-      }
-    }
-    console.log(clients);
-  }); */
+var clients = [];
+var echo = sockjs.createServer({
+  sockjs_url: "http://cdn.jsdelivr.net/sockjs/1.0.1/sockjs.min.js",
 });
+
+echo.on("connection", function (conn) {
+  var index = clients.push(conn);
+
+  var lenght = clients.length;
+  while (lenght--) {
+    if (clients[lenght] !== undefined) {
+      clients[lenght].write("test");
+    }
+  }
+
+  conn.on("close", function () {
+    delete clients[index];
+    console.log("Adios, cara de verga " + conn);
+  });
+  conn.on("data", function (message) {
+    console.log("message " + conn, message);
+    conn.write(message);
+  });
+});
+
+echo.installHandlers(server, { prefix: "/echo" });
 
 app.get("/Socket/Clientes", function (req, res) {
   res.send(clients);
@@ -204,7 +101,6 @@ getMitrol = async (wsParameter) => {
 };
 
 app.get("/Mitrol", async (req, res) => {
-
   var wsParameter = `
       store=REP_RDL_EficienciaCampania05101520##
       idPermiso=REPORTES_Campañas_Eficiencia+de+Campaña+05-10-15-20##
@@ -237,8 +133,6 @@ app.get("/Mitrol", async (req, res) => {
   var aber = await getMitrol(wsParameter);
   var result = convert.xml2json(aber, { compact: true });
   var json = JSON.parse(result);
-
-
 
   res.send(json.DataSet["diffgr:diffgram"].NewDataSet.Table1);
 });
