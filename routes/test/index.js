@@ -6,16 +6,6 @@ router.get("/", function (req, res) {
   res.send("Endpoints de Prueba App CRUD");
 });
 
-router.ws("/echo", (ws, req) => {
-  ws.on("message", (msg) => {
-    ws.send('Pruebossa');
-  });
-
-  ws.on("close", () => {
-    console.log("WebSocket was closed");
-  });
-});
-
 router.get("/post", function (req, res) {
   sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);

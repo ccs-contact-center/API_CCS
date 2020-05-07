@@ -5,8 +5,8 @@ var bodyParser = require("body-parser");
 var path = require("path");
 var WebSocket = require("ws");
 
-//const PORT = process.env.PORT;
-const PORT = 8082;
+const PORT = process.env.PORT;
+//const PORT = 8082;
 
 //Enabling CORS on API
 app.use((req, res, next) => {
