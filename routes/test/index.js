@@ -2,12 +2,22 @@ var router = require("express").Router();
 var sql = require("mssql");
 var constants = require("../../constants");
 
-router.get("/", function(req, res) {
+router.get("/", function (req, res) {
   res.send("Endpoints de Prueba App CRUD");
 });
 
-router.get("/post", function(req, res) {
-  sql.connect(constants.dbCluster, function(err) {
+router.ws("/echo", (ws, req) => {
+  ws.on("message", (msg) => {
+    ws.send('Pruebossa');
+  });
+
+  ws.on("close", () => {
+    console.log("WebSocket was closed");
+  });
+});
+
+router.get("/post", function (req, res) {
+  sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
@@ -15,7 +25,7 @@ router.get("/post", function(req, res) {
     request.query(
       "SELECT * FROM EjemploCRUD.dbo.Posts",
 
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -24,8 +34,8 @@ router.get("/post", function(req, res) {
   });
 });
 
-router.get("/post/:id", function(req, res) {
-  sql.connect(constants.dbCluster, function(err) {
+router.get("/post/:id", function (req, res) {
+  sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
@@ -35,7 +45,7 @@ router.get("/post/:id", function(req, res) {
     request.query(
       "SELECT * FROM EjemploCRUD.dbo.Posts WHERE id=@id",
 
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -44,8 +54,8 @@ router.get("/post/:id", function(req, res) {
   });
 });
 
-router.post("/post", function(req, res) {
-  sql.connect(constants.dbCluster, function(err) {
+router.post("/post", function (req, res) {
+  sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
@@ -56,7 +66,7 @@ router.post("/post", function(req, res) {
     request.query(
       "INSERT INTO EjemploCRUD.dbo.Posts (fecha_alta,titulo, contenido) OUTPUT INSERTED.* VALUES (GETDATE(),@titulo,@contenido)",
 
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -65,8 +75,8 @@ router.post("/post", function(req, res) {
   });
 });
 
-router.put("/post/:id", function(req, res) {
-  sql.connect(constants.dbCluster, function(err) {
+router.put("/post/:id", function (req, res) {
+  sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
@@ -78,7 +88,7 @@ router.put("/post/:id", function(req, res) {
     request.query(
       "UPDATE EjemploCRUD.dbo.Posts SET titulo=@titulo, contenido=@contenido, fecha_update=GETDATE() OUTPUT INSERTED.* WHERE id =@id",
 
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -87,8 +97,8 @@ router.put("/post/:id", function(req, res) {
   });
 });
 
-router.delete("/post/:id", function(req, res) {
-  sql.connect(constants.dbCluster, function(err) {
+router.delete("/post/:id", function (req, res) {
+  sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
@@ -98,7 +108,7 @@ router.delete("/post/:id", function(req, res) {
     request.query(
       "DELETE EjemploCRUD.dbo.Posts OUTPUT DELETED.* WHERE id =@id",
 
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
