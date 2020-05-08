@@ -66,28 +66,52 @@ wss.on("connection", (client) => {
         break;
       case "logout":
         clients.removeClient(data.data.username);
-        wss.clients.forEach(function each(user) {
-          if (user !== client && user.readyState === WebSocket.OPEN) {
-            var sData = {
-              type: "login",
-              data: {
-                body: data.data.username + " se desconectó",
-              },
-            };
-            user.send(JSON.stringify(sData));
-          }
-        });
+        if (data.data.username === undefined) {
+        } else {
+          wss.clients.forEach(function each(user) {
+            if (user !== client && user.readyState === WebSocket.OPEN) {
+              var sData = {
+                type: "login",
+                data: {
+                  body: data.data.username + " se desconectó",
+                },
+              };
+              user.send(JSON.stringify(sData));
+            }
+          });
+        }
+        break;
+      case "browserRefresh":
+        if (clients.isLoggedIn(data.data.username) === true) {
+          clients.stopRemove();
+          clients.updateClient(data.data.username, client);
+        }
         break;
       default:
+        console.log(data);
         break;
     }
   });
 
   client.on("close", function () {
     var user = clients.searchUserByConn(clients.clientList, client);
-    clients.removeClient(user);
-    console.log("Se desconectó " + user);
-    //console.log(clients.clientList);
+    clients.requestRemove(user);
+    setTimeout(() => {
+      if (user === undefined) {
+      } else {
+        wss.clients.forEach(function each(id) {
+          if (id !== client && id.readyState === WebSocket.OPEN) {
+            var sData = {
+              type: "login",
+              data: {
+                body: user + " se desconectó",
+              },
+            };
+            id.send(JSON.stringify(sData));
+          }
+        });
+      }
+    }, 5000);
   });
 });
 

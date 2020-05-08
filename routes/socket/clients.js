@@ -1,3 +1,4 @@
+var t = "";
 class Clients {
   constructor() {
     this.clientList = {};
@@ -15,15 +16,37 @@ class Clients {
       }
 
       if (value === query) {
-        console.log(key);
         return key;
       }
     }
   }
 
+  isLoggedIn(username) {
+    var count = 0;
+    for (var i = 0; i < this.clientListShort.length; ++i) {
+      if (this.clientListShort[i] == username) count++;
+    }
+    return count === 0 ? false : true;
+  }
+
   saveClient(username, client) {
     this.clientList[username] = client;
     this.clientListShort.push(username);
+  }
+
+  updateClient(username, client) {
+    this.clientList[username] = client;
+  }
+
+  requestRemove(username) {
+    t = setTimeout(() => {
+      this.removeClient(username);
+    }, 3000);
+
+    return t._called;
+  }
+  stopRemove() {
+    clearTimeout(t);
   }
 
   removeClient(username) {
