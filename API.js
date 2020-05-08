@@ -1,9 +1,10 @@
 var express = require("express");
 var app = express();
-var expressWs = require("express-ws");
 var bodyParser = require("body-parser");
 var path = require("path");
 var WebSocket = require("ws");
+var Clients = require("./routes/socket/clients");
+const clients = new Clients();
 
 const PORT = process.env.PORT;
 //const PORT = 8082;
@@ -35,52 +36,63 @@ const server = app.listen(PORT, function () {
   console.log("Up & Running on port " + port);
 });
 
-expressWs(server);
-
-class Clients {
-  constructor() {
-    this.clientList = {};
-    this.saveClient = this.saveClient.bind(this);
-  }
-  saveClient(username, client) {
-    this.clientList[username] = client;
-  }
-
-  removeClient(username) {
-    delete this.clientList[username];
-  }
-}
-
-const clients = new Clients();
-
 const wss = new WebSocket.Server({ server });
 
 wss.on("connection", (client) => {
   client.on("message", (msg) => {
-    //const parsedMsg = JSON.parse(msg);
-    clients.saveClient(msg, client);
-    console.log(clients.clientList);
-    clients.clientList["icontrerasg"].send("Lo lograste, gilipollas!");
+    const data = JSON.parse(msg);
+
+    switch (data.type) {
+      case "login":
+        clients.saveClient(data.data.username, client);
+        var sData = {
+          type: "selfLogin",
+          data: {
+            body: "¡Bienvenido, " + data.data.username + "!",
+          },
+        };
+        clients.clientList[data.data.username].send(JSON.stringify(sData));
+        wss.clients.forEach(function each(user) {
+          if (user !== client && user.readyState === WebSocket.OPEN) {
+            var sData = {
+              type: "login",
+              data: {
+                body: data.data.username + " se conectó",
+              },
+            };
+            user.send(JSON.stringify(sData));
+          }
+        });
+        break;
+      case "logout":
+        clients.removeClient(data.data.username);
+        wss.clients.forEach(function each(user) {
+          if (user !== client && user.readyState === WebSocket.OPEN) {
+            var sData = {
+              type: "login",
+              data: {
+                body: data.data.username + " se desconectó",
+              },
+            };
+            user.send(JSON.stringify(sData));
+          }
+        });
+        break;
+      default:
+        break;
+    }
   });
 
   client.on("close", function () {
-    clients.removeClient("icontrerasg")
-    console.log(clients.clientList);
+    var user = clients.searchUserByConn(clients.clientList, client);
+    clients.removeClient(user);
+    console.log("Se desconectó " + user);
+    //console.log(clients.clientList);
   });
 });
 
-/*wss.on("connection", function connection(ws, req) {
-  ws.on("message", function incoming(message) {
-    console.log(message);
-  });
-
-  ws.on("close", function () {
-    console.log("Goodbye, Mr Server");
-  });
-});*/
-
 app.get("/Socket/Clientes", function (req, res) {
-  res.send("OK");
+  res.send(clients.clientListShort);
 });
 
 app.get("/Socket/Clientes/:username", function (req, res) {
