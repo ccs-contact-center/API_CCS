@@ -42,7 +42,7 @@ wss.on("connection", (client) => {
   client.on("message", (msg) => {
     const data = JSON.parse(msg);
 
-    
+
     switch (data.type) {
       case "login":
         clients.saveClient(data.data.username, client);
@@ -90,6 +90,7 @@ wss.on("connection", (client) => {
         break;
       default:
         console.log(data);
+        
         break;
     }
   });
