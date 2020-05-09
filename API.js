@@ -42,7 +42,6 @@ wss.on("connection", (client) => {
   client.on("message", (msg) => {
     const data = JSON.parse(msg);
 
-
     switch (data.type) {
       case "login":
         clients.saveClient(data.data.username, client);
@@ -90,7 +89,6 @@ wss.on("connection", (client) => {
         break;
       default:
         console.log(data);
-        
         break;
     }
   });
@@ -99,7 +97,7 @@ wss.on("connection", (client) => {
     var user = clients.searchUserByConn(clients.clientList, client);
     clients.requestRemove(user);
     setTimeout(() => {
-      if (user === undefined) {
+      if (user === undefined || clients.isLoggedIn(user) === true) {
       } else {
         wss.clients.forEach(function each(id) {
           if (id !== client && id.readyState === WebSocket.OPEN) {

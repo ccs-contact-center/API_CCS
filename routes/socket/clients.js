@@ -35,6 +35,7 @@ class Clients {
   }
 
   updateClient(username, client) {
+    delete this.clientList[username];
     this.clientList[username] = client;
   }
 
@@ -42,8 +43,6 @@ class Clients {
     t = setTimeout(() => {
       this.removeClient(username);
     }, 3000);
-
-    return t._called;
   }
   stopRemove() {
     clearTimeout(t);
