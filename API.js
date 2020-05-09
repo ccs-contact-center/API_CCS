@@ -36,9 +36,24 @@ const server = app.listen(PORT, function () {
   console.log("Up & Running on port " + port);
 });
 
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({ server, perMessageDeflate: false });
+
+function heartbeat() {
+  this.isAlive = true;
+}
+
+const interval = setInterval(function ping() {
+  wss.clients.forEach(function each(ws) {
+    if (ws.isAlive === false) return ws.terminate();
+
+    ws.isAlive = false;
+    ws.ping(() => console.log("ping"));
+  });
+}, 30000);
 
 wss.on("connection", (client) => {
+  client.isAlive = true;
+  client.on("pong", heartbeat);
   client.on("message", (msg) => {
     const data = JSON.parse(msg);
 
@@ -99,6 +114,7 @@ wss.on("connection", (client) => {
     setTimeout(() => {
       if (user === undefined || clients.isLoggedIn(user) === true) {
       } else {
+        clearInterval(interval);
         wss.clients.forEach(function each(id) {
           if (id !== client && id.readyState === WebSocket.OPEN) {
             var sData = {
@@ -116,7 +132,7 @@ wss.on("connection", (client) => {
 });
 
 app.get("/Socket/Clientes", function (req, res) {
-  res.send(clients.clientListShort);
+  res.send(clients.clientList);
 });
 
 app.get("/Socket/Clientes/:username", function (req, res) {
