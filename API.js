@@ -153,6 +153,21 @@ app.get("/Socket/Clientes", function (req, res) {
   res.send(Object.keys(clients.clientList));
 });
 
+app.get("/Socket/Clientes/Borrar/:username", function (req, res) {
+  try {
+    var sData = {
+      type: "forceLogout",
+      data: {
+        body: "¡Se ha forzado remotamente el logout!",
+      },
+    };
+    clients.clientList[req.params.username].send(JSON.stringify(sData));
+    res.send(Object.keys(clients.clientList));
+  } catch (e) {
+    res.send(e);
+  }
+});
+
 app.get("/Socket/Clientes/:username", function (req, res) {
   var result = clients.clientList[req.params.username];
 
