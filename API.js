@@ -5,9 +5,16 @@ var path = require("path");
 var WebSocket = require("ws");
 var Clients = require("./routes/socket/clients");
 const clients = new Clients();
+var os = require("os");
 
-const PORT = process.env.PORT;
-//const PORT = 8082;
+const isLocalhost = Boolean(os.hostname().indexOf("local") > -1);
+var PORT;
+
+if (isLocalhost) {
+  PORT = 8082;
+} else {
+  process.env.PORT;
+}
 
 //Enabling CORS on API
 app.use((req, res, next) => {
@@ -153,7 +160,7 @@ app.get("/Socket/Clientes", function (req, res) {
   res.send(Object.keys(clients.clientList));
 });
 
-app.get("/Socket/Clientes/Borrar/:username", function (req, res) {
+app.delete("/Socket/Clientes/:username", function (req, res) {
   try {
     var sData = {
       type: "forceLogout",

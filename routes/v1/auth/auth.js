@@ -9,7 +9,7 @@ var sql = require("mssql");
 var jwt = require("jsonwebtoken");
 var path = require("path");
 const jwtMW = exjwt({
-  secret: "Grhzu92E_s3cr3t"
+  secret: "Grhzu92E_s3cr3t",
 });
 
 var fs = require("fs");
@@ -27,10 +27,10 @@ function generar(longitud) {
   return contraseña;
 }
 
-requestObjetivo = async data => {
+requestObjetivo = async (data) => {
   const headers = {
     Accept: "application/json",
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
   };
   const response = await await fetch(
     "https://api.ccscontactcenter.com/v1/auth/getToken",
@@ -51,30 +51,33 @@ router.post("/Login", (req, res) => {
     password +
     "'";
 
-  console.log(query);
-  sql.connect(constants.dbConfig, function(err) {
+  sql.connect(constants.dbConfig, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
 
-    request.query(query, function(err, recordset) {
+    request.query(query, function (err, recordset) {
       if (err) console.log(err);
+
+      if (recordset === undefined) {
+        console.log("undefinido");
+      }
 
       if (recordset.length == 1) {
         let token = jwt.sign(recordset[0], "Grhzu92E_s3cr3t", {
-          expiresIn: 1800
+          expiresIn: 1800,
         });
         res.json({
           sucess: true,
           err: null,
           token,
-          recordset
+          recordset,
         });
       } else {
-        res.status(401).json({
+        res.json({
           sucess: false,
           token: null,
-          err: "Username or password is incorrect"
+          err: "Tu usuario o password es incorrecto",
         });
       }
     });
@@ -89,29 +92,29 @@ router.post("/Coronalogin", (req, res) => {
     username +
     "'";
 
-  sql.connect(constants.dbCluster, function(err) {
+  sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
 
-    request.query(query, function(err, recordset) {
+    request.query(query, function (err, recordset) {
       if (err) console.log(err);
 
       if (recordset.length == 1) {
         let token = jwt.sign(recordset[0], "Grhzu92E_s3cr3t", {
-          expiresIn: 1800
+          expiresIn: 1800,
         });
         res.json({
           sucess: true,
           err: null,
           token,
-          recordset
+          recordset,
         });
       } else {
         res.status(401).json({
           sucess: false,
           token: null,
-          err: "Username or password is incorrect"
+          err: "Username or password is incorrect",
         });
       }
     });
@@ -124,29 +127,29 @@ router.post("/getToken", (req, res) => {
   var query =
     "SELECT * FROM [CCS].[dbo].[Usuarios] WHERE id_ccs = '" + username + "'";
 
-  sql.connect(constants.dbConfig, function(err) {
+  sql.connect(constants.dbConfig, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
 
-    request.query(query, function(err, recordset) {
+    request.query(query, function (err, recordset) {
       if (err) console.log(err);
 
       if (recordset.length == 1) {
         let token = jwt.sign(recordset[0], "Grhzu92E_s3cr3t", {
-          expiresIn: 1800
+          expiresIn: 1800,
         });
         res.json({
           sucess: true,
           err: null,
           token,
-          recordset
+          recordset,
         });
       } else {
         res.status(401).json({
           sucess: false,
           token: null,
-          err: "Username or password is incorrect"
+          err: "Username or password is incorrect",
         });
       }
     });
@@ -158,7 +161,7 @@ router.get("/", (req, res) => {
   console.log("router.stack");
 });
 
-router.use(function(err, req, res, next) {
+router.use(function (err, req, res, next) {
   if (err.name === "UnauthorizedError") {
     res.status(401).send(err);
   } else {
@@ -166,7 +169,7 @@ router.use(function(err, req, res, next) {
   }
 });
 
-router.get("/resetPassword", async function(req, res) {
+router.get("/resetPassword", async function (req, res) {
   var ascii = new Buffer.from(req.query.data, "base64").toString("ascii");
   var arrObjetivo = await this.requestObjetivo(ascii);
   var dataJSON = JSON.parse(ascii);
@@ -174,23 +177,23 @@ router.get("/resetPassword", async function(req, res) {
   const headers = {
     Accept: "application/json",
     "Content-Type": "application/json",
-    Authorization: "Bearer " + arrObjetivo
+    Authorization: "Bearer " + arrObjetivo,
   };
 
   fetch("https://api.ccscontactcenter.com/v1/auth/resetPassword", {
     headers,
     method: "POST",
-    body: ascii
+    body: ascii,
   })
-    .then(res => res.text())
-    .then(body => console.log(body));
+    .then((res) => res.text())
+    .then((body) => console.log(body));
 
   //res.send("Se restableció la contraseña con éxito. Recibiras un mail a " + dataJSON.mail + " con la nueva contraseña.")
 
   res.redirect("../../../successUpdate.html");
 });
 
-router.post("/resetPassword", jwtMW, function(req, res) {
+router.post("/resetPassword", jwtMW, function (req, res) {
   var password = generar(8);
 
   var msgHTML =
@@ -204,8 +207,8 @@ router.post("/resetPassword", jwtMW, function(req, res) {
     secure: constants.mailSecure,
     auth: {
       user: constants.mailAccount,
-      pass: constants.mailPass
-    }
+      pass: constants.mailPass,
+    },
   });
 
   let mailOptions = {
@@ -213,7 +216,7 @@ router.post("/resetPassword", jwtMW, function(req, res) {
     to: req.body.mail, // list of receivers
     subject: "Contraseña Actualizada", // Subject line
     //text: req.body.body, // plain text body
-    html: "<html>" + msgHTML + "</html>" // html body
+    html: "<html>" + msgHTML + "</html>", // html body
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
@@ -233,7 +236,7 @@ router.post("/resetPassword", jwtMW, function(req, res) {
   utils.executeQuery(res, query);
 });
 
-router.post("/changePassword", jwtMW, function(req, res) {
+router.post("/changePassword", jwtMW, function (req, res) {
   var query =
     "UPDATE [CCS].[dbo].[Usuarios] SET pass_ccs ='" +
     req.body.password +
@@ -252,7 +255,7 @@ function getJWTSignedToken_nJWTLib(sfdcUserName) {
     iss: jwt_consumer_key,
     sub: sfdcUserName,
     aud: jwt_aud,
-    exp: Math.floor(Date.now() / 1000) + 60 * 3
+    exp: Math.floor(Date.now() / 1000) + 60 * 3,
   };
 
   return encryptUsingPrivateKey_nJWTLib(claims);
@@ -283,14 +286,14 @@ router.get("/salesforceCCSAuth", (req, res) => {
     url: sfdcURL,
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: paramBody
+    body: paramBody,
   };
 
   fetch(sfdcURL, req_sfdcOpts)
-    .then(res => {
+    .then((res) => {
       return res.json();
     })
-    .then(json => {
+    .then((json) => {
       res.send(json);
     });
 });
@@ -302,15 +305,15 @@ router.post("/salesforceQuery", (req, res) => {
     url: sfdcURL,
     method: "GET",
     headers: {
-      Authorization: "Bearer " + req.body.token
-    }
+      Authorization: "Bearer " + req.body.token,
+    },
   };
 
   fetch(sfdcURL, req_sfdcOpts)
-    .then(res => {
+    .then((res) => {
       return res.json();
     })
-    .then(json => {
+    .then((json) => {
       res.send(json);
     });
 });
