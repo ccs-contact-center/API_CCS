@@ -5,16 +5,10 @@ var path = require("path");
 var WebSocket = require("ws");
 var Clients = require("./routes/socket/clients");
 const clients = new Clients();
-var os = require("os");
 
-const isLocalhost = Boolean(os.hostname().indexOf("local") > -1);
-var PORT;
 
-if (isLocalhost) {
-  PORT = 8082;
-} else {
-  process.env.PORT;
-}
+const PORT = process.env.PORT;
+//const PORT = 8082;
 
 //Enabling CORS on API
 app.use((req, res, next) => {
