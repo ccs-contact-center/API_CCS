@@ -248,11 +248,25 @@ router.post("/changePassword", jwtMW, function (req, res) {
 
 var jwt_consumer_key =
   "3MVG9Kip4IKAZQEVqfLm8ZumQDciE2fl.S_E4XwoU51Ym6bgoCyotmPrFb9kA4SFh1Vvha5QjwoeFXI8iu9tx";
+
+var jwt_consumer_keyEZET =
+  "3MVG9CVKiXR7Ri5rmWroGb1B6_KbUtIrTu9iqCK9WJWUlJzATZN_VL_ojdmx71.Xzk5aGakcjSRYaQMF9Gq7B";
 var jwt_aud = "https://login.salesforce.com";
 
 function getJWTSignedToken_nJWTLib(sfdcUserName) {
   var claims = {
     iss: jwt_consumer_key,
+    sub: sfdcUserName,
+    aud: jwt_aud,
+    exp: Math.floor(Date.now() / 1000) + 60 * 3,
+  };
+
+  return encryptUsingPrivateKey_nJWTLib(claims);
+}
+
+function getJWTSignedToken_nJWTLibEZET(sfdcUserName) {
+  var claims = {
+    iss: jwt_consumer_keyEZET,
     sub: sfdcUserName,
     aud: jwt_aud,
     exp: Math.floor(Date.now() / 1000) + 60 * 3,
@@ -276,6 +290,34 @@ router.get("/salesforceCCSAuth", (req, res) => {
   var sfdcURL = "https://login.salesforce.com/services/oauth2/token";
 
   var token = getJWTSignedToken_nJWTLib("iacontrerasg@icloud.com");
+
+  var paramBody =
+    "grant_type=" +
+    base64url.escape("urn:ietf:params:oauth:grant-type:jwt-bearer") +
+    "&assertion=" +
+    token;
+  var req_sfdcOpts = {
+    url: sfdcURL,
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: paramBody,
+  };
+
+  fetch(sfdcURL, req_sfdcOpts)
+    .then((res) => {
+      return res.json();
+    })
+    .then((json) => {
+      res.send(json);
+    });
+});
+
+router.get("/salesforceEzeteraAuth", (req, res) => {
+  var sfdcURL = "https://login.salesforce.com/services/oauth2/token";
+
+  var token = getJWTSignedToken_nJWTLibEZET(
+    "isaac.contreras@ccscontactcenter.com"
+  );
 
   var paramBody =
     "grant_type=" +

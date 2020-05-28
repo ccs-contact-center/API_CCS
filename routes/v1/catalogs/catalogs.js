@@ -6,9 +6,8 @@ var moment = require("moment");
 var constants = require("../../../constants");
 var exjwt = require("express-jwt");
 
-
 const jwtMW = exjwt({
-  secret: "Grhzu92E_s3cr3t"
+  secret: "Grhzu92E_s3cr3t",
 });
 
 const dbCluster = {
@@ -17,18 +16,18 @@ const dbCluster = {
   server: "10.0.0.152",
   database: "CodigosPostales",
   connectionTimeout: 800000,
-  requestTimeout: 800000
+  requestTimeout: 800000,
 };
 
-router.get("/clavesEstados/:estado", function(req, res) {
-  sql.connect(dbCluster, function(err) {
+router.get("/clavesEstados/:estado", function (req, res) {
+  sql.connect(dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
     request.input("EDO", req.params.estado);
     request.query(
       "SELECT * FROM SQLCLUSTER.CodigosPostales.dbo.Estados WHERE estado = @EDO",
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -37,22 +36,22 @@ router.get("/clavesEstados/:estado", function(req, res) {
   });
 });
 
-router.get("/codigo_postal/:cp", function(req, res) {
+router.get("/codigo_postal/:cp", function (req, res) {
   var cp = req.params.cp;
   sql
     .connect(constants.dbConfig)
-    .then(function() {
+    .then(function () {
       var request = new sql.Request();
       request.input("CP", cp + "%");
       request
         .query(
           "SELECT DISTINCT d_codigo as 'CodigoPostal',D_mnpio as 'Municipio',d_estado as 'Estado' ,d_ciudad as 'Ciudad' FROM SQLCLUSTER.CodigosPostales.dbo.CP WHERE d_codigo like @CP"
         )
-        .then(result => {
+        .then((result) => {
           return result; // Contiene los ID
         })
-        .then(async cols => {
-          const colPromises = cols.map(CodigoPostal => {
+        .then(async (cols) => {
+          const colPromises = cols.map((CodigoPostal) => {
             const request = new sql.Request();
             request.input("CP", CodigoPostal.CodigoPostal);
             return request.query(
@@ -65,25 +64,25 @@ router.get("/codigo_postal/:cp", function(req, res) {
           var colonias = [];
           var result = [];
 
-          coloniasPromise.forEach(registro => {
+          coloniasPromise.forEach((registro) => {
             for (x = 0; x < registro.length; x++) {
               var test = {
                 CodigoPostal: registro[x].CodigoPostal,
-                Colonia: registro[x].Colonia
+                Colonia: registro[x].Colonia,
               };
 
               colonias.push(test);
             }
           });
 
-          codigosPostales.forEach(codigoPostal => {
+          codigosPostales.forEach((codigoPostal) => {
             var current = codigoPostal.CodigoPostal;
 
             let filtered = colonias.filter(
-              number => number.CodigoPostal == current
+              (number) => number.CodigoPostal == current
             );
 
-            var coloniasOk = filtered.map(task => task.Colonia);
+            var coloniasOk = filtered.map((task) => task.Colonia);
 
             var modelo = [
               {
@@ -91,8 +90,8 @@ router.get("/codigo_postal/:cp", function(req, res) {
                 Municipio: codigoPostal.Municipio,
                 Codigo_Postal: codigoPostal.CodigoPostal,
                 Ciudad: codigoPostal.Ciudad,
-                Colonias: coloniasOk
-              }
+                Colonias: coloniasOk,
+              },
             ];
 
             result.push(modelo);
@@ -100,24 +99,24 @@ router.get("/codigo_postal/:cp", function(req, res) {
 
           return result;
         })
-        .then(final => {
+        .then((final) => {
           res.send(final);
         })
-        .catch(function(err) {
+        .catch(function (err) {
           console.log(err);
         });
     })
-    .catch(function(err) {
+    .catch(function (err) {
       console.log(err);
     });
 });
 
-router.get("/colonia/:estado/:col", function(req, res) {
+router.get("/colonia/:estado/:col", function (req, res) {
   var cp = req.params.col;
   var edo = req.params.estado;
   sql
     .connect(constants.dbConfig)
-    .then(function() {
+    .then(function () {
       var request = new sql.Request();
       request.input("CP", "%" + cp + "%");
       request.input("EDO", "%" + edo + "%");
@@ -125,11 +124,11 @@ router.get("/colonia/:estado/:col", function(req, res) {
         .query(
           "SELECT DISTINCT d_codigo as 'CodigoPostal',D_mnpio as 'Municipio',d_estado as 'Estado' ,d_ciudad as 'Ciudad' FROM SQLCLUSTER.CodigosPostales.dbo.CP WHERE d_asenta like @CP AND d_estado like @EDO"
         )
-        .then(result => {
+        .then((result) => {
           return result; // Contiene los ID
         })
-        .then(async cols => {
-          const colPromises = cols.map(CodigoPostal => {
+        .then(async (cols) => {
+          const colPromises = cols.map((CodigoPostal) => {
             const request = new sql.Request();
             request.input("CP", CodigoPostal.CodigoPostal);
             return request.query(
@@ -142,25 +141,25 @@ router.get("/colonia/:estado/:col", function(req, res) {
           var colonias = [];
           var result = [];
 
-          coloniasPromise.forEach(registro => {
+          coloniasPromise.forEach((registro) => {
             for (x = 0; x < registro.length; x++) {
               var test = {
                 CodigoPostal: registro[x].CodigoPostal,
-                Colonia: registro[x].Colonia
+                Colonia: registro[x].Colonia,
               };
 
               colonias.push(test);
             }
           });
 
-          codigosPostales.forEach(codigoPostal => {
+          codigosPostales.forEach((codigoPostal) => {
             var current = codigoPostal.CodigoPostal;
 
             let filtered = colonias.filter(
-              number => number.CodigoPostal == current
+              (number) => number.CodigoPostal == current
             );
 
-            var coloniasOk = filtered.map(task => task.Colonia);
+            var coloniasOk = filtered.map((task) => task.Colonia);
 
             var modelo = [
               {
@@ -168,8 +167,8 @@ router.get("/colonia/:estado/:col", function(req, res) {
                 Municipio: codigoPostal.Municipio,
                 Codigo_Postal: codigoPostal.CodigoPostal,
                 Ciudad: codigoPostal.Ciudad,
-                Colonias: coloniasOk
-              }
+                Colonias: coloniasOk,
+              },
             ];
 
             result.push(modelo);
@@ -177,27 +176,27 @@ router.get("/colonia/:estado/:col", function(req, res) {
 
           return result;
         })
-        .then(final => {
+        .then((final) => {
           res.send(final);
         })
-        .catch(function(err) {
+        .catch(function (err) {
           console.log(err);
         });
     })
-    .catch(function(err) {
+    .catch(function (err) {
       console.log(err);
     });
 });
 
-router.get("/municipios", function(req, res) {
-  sql.connect(dbCluster, function(err) {
+router.get("/municipios", function (req, res) {
+  sql.connect(dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
     request.input("EDO", req.query.estado);
     request.query(
       "SELECT DISTINCT c_mnpio as 'value', D_mnpio as 'label' FROM CodigosPostales.dbo.CP WHERE d_estado = @EDO ORDER BY D_mnpio",
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -206,8 +205,8 @@ router.get("/municipios", function(req, res) {
   });
 });
 
-router.get("/colonias", function(req, res) {
-  sql.connect(dbCluster, function(err) {
+router.get("/colonias", function (req, res) {
+  sql.connect(dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
@@ -215,7 +214,7 @@ router.get("/colonias", function(req, res) {
     request.input("MUNICIPIO", req.query.municipio);
     request.query(
       "SELECT d_codigo as value,d_asenta as label FROM CodigosPostales.dbo.CP WHERE d_estado = @EDO AND d_mnpio = @MUNICIPIO ORDER BY d_asenta",
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -224,34 +223,38 @@ router.get("/colonias", function(req, res) {
   });
 });
 
-router.get("/menu", function(req, res) {
-  sql.connect(dbCluster, function(err) {
+router.get("/menu", function (req, res) {
+  sql.connect(dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
     request.input("ROLE", req.query.role);
-    request.query("EXEC CCS.dbo.GET_Menu @ROLE = @ROLE", function(err, recordset) {
+    request.query("EXEC CCS.dbo.GET_Menu @ROLE = @ROLE", function (
+      err,
+      recordset
+    ) {
       if (err) console.log(err);
 
       var menu = [];
-      recordset.forEach(item => {
+
+      recordset.forEach((item) => {
         var title = {
           title: true,
           name: item.name,
-          class: "text-center"
+          class: "text-center",
         };
 
         var singleSection = {
           name: item.name,
           url: item.url,
-          icon: item.icon
+          icon: item.icon,
         };
 
         var childrens = [];
 
         if (item.hasChild === 1) {
           childrens = recordset.filter(
-            itemFiltered => itemFiltered.parent === item.id
+            (itemFiltered) => itemFiltered.parent === item.id
           );
         }
 
@@ -259,7 +262,7 @@ router.get("/menu", function(req, res) {
           name: item.name,
           url: item.url,
           icon: item.icon,
-          children: childrens
+          children: childrens,
         };
 
         //console.log(childrens.length >= 1);
@@ -274,7 +277,7 @@ router.get("/menu", function(req, res) {
       });
 
       var menuOK = {
-        items: menu
+        items: menu,
       };
       res.send(menuOK);
     });
