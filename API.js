@@ -2,13 +2,26 @@ var express = require("express");
 var app = express();
 var bodyParser = require("body-parser");
 var path = require("path");
+var log4js = require("log4js");
+log4js.configure({
+  appenders: {
+    log: {
+      type: "file",
+      filename: "logs/CCS.log",
+      maxLogSize: 10485760,
+      backups: 3,
+      compress: false,
+    },
+  },
+  categories: { default: { appenders: ["log"], level: "info" } },
+});
+const logger = log4js.getLogger("CCS");
 var WebSocket = require("ws");
 var Clients = require("./routes/socket/clients");
 const clients = new Clients();
 
-
-const PORT = process.env.PORT;
-//const PORT = 8082;
+//const PORT = process.env.PORT;
+const PORT = 8082;
 
 //Enabling CORS on API
 app.use((req, res, next) => {
@@ -29,6 +42,22 @@ app.use(express.json({ limit: "50mb" }));
 //Used to parse json bodys from requests
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use((req, res, next) => {
+  var datetime = new Date();
+  var logEntry = {
+    date: datetime,
+    user: req.get("id_ccs"),
+    ip: req.ip,
+    route: req.url,
+    method: req.method,
+    payload: req.body,
+  };
+
+  logger.info(JSON.stringify(logEntry));
+
+  next();
+});
 
 //Para correr como standalone server
 
@@ -180,4 +209,5 @@ app.get("/Socket/Clientes/:username", function (req, res) {
 });
 
 app.use("/v1", require("./routes/v1"));
+app.use("/v2", require("./routes/v2"));
 app.use("/test", require("./routes/test"));
