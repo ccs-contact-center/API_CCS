@@ -3,11 +3,12 @@ var app = express();
 var bodyParser = require("body-parser");
 var path = require("path");
 var log4js = require("log4js");
+var os = require("os");
 log4js.configure({
   appenders: {
     log: {
       type: "file",
-      filename: "logs/CCS.log",
+      filename: "logs/CCS_" + os.hostname() + ".log",
       maxLogSize: 10485760,
       backups: 3,
       compress: false,
