@@ -84,6 +84,49 @@ router.post("/Login", (req, res) => {
   });
 });
 
+router.post("/Login40", (req, res) => {
+  const { username, password } = req.body;
+
+  var query =
+    "SELECT * FROM [CCS].[dbo].[SYS_Empleados] WHERE id_ccs = '" +
+    username +
+    "' AND pass_ccs = '" +
+    password +
+    "'";
+
+  sql.connect(constants.db40, function (err) {
+    if (err) console.log(err);
+
+    var request = new sql.Request();
+
+    request.query(query, function (err, recordset) {
+      if (err) console.log(err);
+
+      if (recordset === undefined) {
+        console.log("undefinido");
+      }
+
+      if (recordset.length == 1) {
+        let token = jwt.sign(recordset[0], "Grhzu92E_s3cr3t", {
+          expiresIn: 1800,
+        });
+        res.json({
+          sucess: true,
+          err: null,
+          token,
+          recordset,
+        });
+      } else {
+        res.json({
+          sucess: false,
+          token: null,
+          err: "Tu usuario o password es incorrecto",
+        });
+      }
+    });
+  });
+});
+
 router.post("/Coronalogin", (req, res) => {
   const { username, password } = req.body;
 
