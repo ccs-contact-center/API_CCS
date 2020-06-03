@@ -19,15 +19,15 @@ const dbCluster = {
   requestTimeout: 800000,
 };
 
-router.get("/clavesEstados/:estado", function (req, res) {
-  sql.connect(dbCluster, function (err) {
+router.get("/clavesEstados/:estado", (req, res) => {
+  sql.connect(dbCluster, (err) => {
     if (err) console.log(err);
 
     var request = new sql.Request();
     request.input("EDO", req.params.estado);
     request.query(
       "SELECT * FROM SQLCLUSTER.CodigosPostales.dbo.Estados WHERE estado = @EDO",
-      function (err, recordset) {
+      (err, recordset) => {
         if (err) console.log(err);
 
         res.send(recordset);
