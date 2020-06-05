@@ -67,7 +67,7 @@ const server = app.listen(PORT, function () {
   console.log("Up & Running on port " + port);
 });
 
-const wss = new WebSocket.Server({ server, perMessageDeflate: true });
+const wss = new WebSocket.Server({ server, perMessageDeflate: false });
 
 app.wss = wss;
 
