@@ -21,8 +21,8 @@ var WebSocket = require("ws");
 var Clients = require("./routes/socket/clients");
 const clients = new Clients();
 
-const PORT = process.env.PORT;
-//const PORT = 8082;
+//const PORT = process.env.PORT;
+const PORT = 8082;
 
 //Enabling CORS on API
 app.use((req, res, next) => {
@@ -70,6 +70,8 @@ const server = app.listen(PORT, function () {
 const wss = new WebSocket.Server({ server, perMessageDeflate: false });
 
 app.wss = wss;
+app.logger = logger;
+
 
 function heartbeat() {
   this.isAlive = true;

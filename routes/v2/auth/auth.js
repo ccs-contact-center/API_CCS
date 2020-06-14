@@ -21,7 +21,7 @@ requestToken = async (data) => {
 
 router.post("/Login", (req, res) => {
   const { username, password } = req.body;
-
+  req.app.logger.info("Test");
   sql.connect(databases.dbCluster, (err) => {
     if (err) console.log(err);
 
@@ -76,7 +76,8 @@ router.post("/Login", (req, res) => {
           res.json({
             sucess: false,
             token: null,
-            err: "¡Ocurrió un error inesperado, por favor reportalo a sistemas!",
+            err:
+              "¡Ocurrió un error inesperado, por favor reportalo a sistemas!",
           });
         }
       }

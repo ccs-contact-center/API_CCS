@@ -11,6 +11,7 @@ router.use("/personal", require("./personal"));
 router.use("/catalogs", require("./catalogs"));
 router.use("/ventas", require("./ventas"));
 router.use("/coronastuff", require("./coronastuff"));
+router.use("/capacitacion", require("./capacitacion"));
 
 router.get("/", function(req, res) {
   res.send("Respuesta desde " + os.hostname());
