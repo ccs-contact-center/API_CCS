@@ -1,6 +1,6 @@
 var router = require("express").Router();
 
-router.get("/", function (req, res) {
+router.get("/", (req, res) => {
   res.send("Endpoints Capacitacion");
 });
 
@@ -31,11 +31,11 @@ router.post("/EjemploDany", (req, res) => {
             @RECLUTADOR,
             @RECLUTADOR
             )`,
-    //Manejamos los resultados, err en caso de error y recordset en caso de ejecución correcta
+      //Manejamos los resultados, err en caso de error y recordset en caso de ejecución correcta
       (err, recordset) => {
-    //Si error, pintamos en consola el error devuelto
+        //Si error, pintamos en consola el error devuelto
         if (err) console.log(err);
-    //Si se ejecuta correctamente, devolvemos el resultadoo del output de la consulta
+        //Si se ejecuta correctamente, devolvemos el resultadoo del output de la consulta
         res.send(recordset);
       }
     );
