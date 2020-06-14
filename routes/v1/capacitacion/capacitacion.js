@@ -24,7 +24,7 @@ router.post("/EjemploDany", (req, res) => {
     //Ejecutamos nuestra consulta SQL
     //SUPER IMPORTANTE siempre tener una clausula output para poder devolver algo en nuestro endpoint
     request.query(
-      `INSERT INTO CCS.dbo.SYS_Empleados (
+      `INSERT INTO [TUBASE.dbo.TUTABLA] (
             status,
             id_ccs,
         ) OUTPUT INSERTED.id VALUES (
