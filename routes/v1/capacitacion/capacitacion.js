@@ -6,6 +6,8 @@ router.get("/", (req, res) => {
 
 //Declaramos un endpoont POST para recibir un payload en json
 router.post("/EjemploDany", (req, res) => {
+  //loggeamos en consola el req body para checar jerarquia y ver como llamamos los parametros
+  console.log(req.body);
   //Creamos una conexión a  SQL con la configuracion del  40 en constants.db40
   sql.connect(constants.db40, (err) => {
     //Manejamos errores en la conexión
