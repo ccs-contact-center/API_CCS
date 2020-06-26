@@ -8,24 +8,29 @@ var utils = require("../../../utils.js");
 var exjwt = require("express-jwt");
 
 const jwtMW = exjwt({
-  secret: "Grhzu92E_s3cr3t"
+  secret: "Grhzu92E_s3cr3t",
 });
 
-router.get("/AsistenciaValidacion", function(req, res) {
+router.get("/AsistenciaValidacion", function (req, res) {
   var query =
     "SELECT * FROM [40].[CCS].[dbo].[OP_Asistencia]  WHERE Validacion=0  AND Fecha_Asistencia between getdate()-6 and getdate()-1 AND Medio IS NOT NULL";
 
   utils.executeQuery(res, query);
 });
 
-router.patch("/AsistenciaValidacion", function(req, res) {
+router.patch("/AsistenciaValidacion", function (req, res) {
   /* console.log(req.body) */
 
-  var query = "EXEC [40].[CCS].[dbo].UpdateValidacion @id=" + req.body.id + ", @user='" + req.body.user +"'";
+  var query =
+    "EXEC [40].[CCS].[dbo].UpdateValidacion @id=" +
+    req.body.id +
+    ", @user='" +
+    req.body.user +
+    "'";
   utils.executeQuery(res, query);
 });
 
-router.get("/Asistencia", function(req, res) {
+router.get("/Asistencia", function (req, res) {
   /* console.log(req.body) */
 
   var query =
@@ -39,7 +44,7 @@ router.get("/Asistencia", function(req, res) {
   utils.executeQuery(res, query);
 });
 
-router.patch("/Asistencia", function(req, res) {
+router.patch("/Asistencia", function (req, res) {
   var query =
     "EXEC [40].[CCS].[dbo].UpdateAsistencia @medio='" +
     req.body.medio +
@@ -54,8 +59,8 @@ router.patch("/Asistencia", function(req, res) {
   utils.executeQuery(res, query);
 });
 
-router.post("/Candidatos", function(req, res) {
-  sql.connect(constants.dbCluster, function(err) {
+router.post("/Candidatos", function (req, res) {
+  sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
@@ -92,7 +97,7 @@ router.post("/Candidatos", function(req, res) {
 
     request.query(
       "INSERT INTO CCS.dbo.SYS_Candidatos OUTPUT INSERTED.folio VALUES (0,@MOTIVO_RECHAZO,NULL,@CAMPANIA,@TURNO,GETDATE(),NULL,@RECLUTADOR,NULL,NULL,@NOMBRES,@PATERNO,@MATERNO,@SEXO,@FECHA_NACIMIENTO,@EDO_NACIMIENTO,@EDO_CIVIL,@CURP,@RFC,@NSS,@DEP_ECONOMICOS,@ESCOLARIDAD,@TIPO_VIAL,@CALLE,@EXT,@INT,@ENTRECALLES,@CP,@COLONIA,@DEL_MUN,@ESTADO,@TEL_CEL,@TEL_CASA,@EMAIL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,@HOBBIES, NULL, NULL,NULL,NULL)",
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -101,12 +106,11 @@ router.post("/Candidatos", function(req, res) {
   });
 });
 
-router.post("/EmpleadosIntegracion", function(req, res) {
-  sql.connect(constants.db40, function(err) {
+router.post("/EmpleadosIntegracion", function (req, res) {
+  sql.connect(constants.db40, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
-
 
     request.input("RECLUTADOR", req.body.reclutador);
     request.input("NOMBRES", req.body.nombres.toUpperCase());
@@ -129,7 +133,6 @@ router.post("/EmpleadosIntegracion", function(req, res) {
     request.input("ESTADO", req.body.estado.toUpperCase());
     request.input("TEL_CEL", req.body.tel_1);
     request.input("TEL_CASA", req.body.tel_2);
-
 
     request.query(
       `INSERT INTO CCS.dbo.SYS_Empleados (
@@ -183,7 +186,7 @@ router.post("/EmpleadosIntegracion", function(req, res) {
             @TEL_CEL,
             @TEL_CASA
             )`,
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -192,8 +195,8 @@ router.post("/EmpleadosIntegracion", function(req, res) {
   });
 });
 
-router.get("/CandidatoValidacion", function(req, res) {
-  sql.connect(constants.dbCluster, function(err) {
+router.get("/CandidatoValidacion", function (req, res) {
+  sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
@@ -209,7 +212,7 @@ router.get("/CandidatoValidacion", function(req, res) {
 
     request.query(
       "SELECT * FROM CCS.dbo.SYS_Candidatos WHERE (SUBSTRING(nombres,1,1) + SUBSTRING(paterno,1,4) + SUBSTRING(materno,1,3) + CONVERT(VARCHAR(10),fecha_nacimiento,103)) = @ID",
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -218,15 +221,15 @@ router.get("/CandidatoValidacion", function(req, res) {
   });
 });
 
-router.get("/Candidatos", function(req, res) {
-  sql.connect(constants.dbCluster, function(err) {
+router.get("/Candidatos", function (req, res) {
+  sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
 
     request.query(
       "SELECT id, CONVERT(NVARCHAR(10),fecha_reclutamiento,103) as Fecha_Reclutamiento, nombres + ' '+ paterno + ' ' + materno as Candidato, CONVERT(NVARCHAR(10),fecha_nacimiento,103) as Fecha_Nacimiento, DATEDIFF([YEAR],fecha_nacimiento,GETDATE()) as Edad, edo_civil, tel_cel , tel_casa , email FROM CCS.dbo.SYS_Candidatos WHERE status = 0",
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -235,15 +238,15 @@ router.get("/Candidatos", function(req, res) {
   });
 });
 
-router.get("/CandidatosConfirmar", function(req, res) {
-  sql.connect(constants.dbCluster, function(err) {
+router.get("/CandidatosConfirmar", function (req, res) {
+  sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
 
     request.query(
       "SELECT id, CONVERT(NVARCHAR(10),fecha_reclutamiento,103) as Fecha_Reclutamiento, nombres + ' '+ paterno + ' ' + materno as Candidato, CONVERT(NVARCHAR(10),fecha_nacimiento,103) as Fecha_Nacimiento, DATEDIFF([YEAR],fecha_nacimiento,GETDATE()) as Edad, edo_civil, tel_cel , tel_casa , email FROM CCS.dbo.SYS_Candidatos WHERE status = 4",
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -252,15 +255,15 @@ router.get("/CandidatosConfirmar", function(req, res) {
   });
 });
 
-router.get("/CandidatosAuditoria", function(req, res) {
-  sql.connect(constants.dbCluster, function(err) {
+router.get("/CandidatosAuditoria", function (req, res) {
+  sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
 
     request.query(
       "SELECT id, CONVERT(NVARCHAR(10),fecha_reclutamiento,103) as Fecha_Reclutamiento, nombres + ' '+ paterno + ' ' + materno as Candidato, CONVERT(NVARCHAR(10),fecha_nacimiento,103) as Fecha_Nacimiento, DATEDIFF([YEAR],fecha_nacimiento,GETDATE()) as Edad, edo_civil, tel_cel , tel_casa , email FROM CCS.dbo.SYS_Candidatos WHERE status = 5",
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -269,15 +272,15 @@ router.get("/CandidatosAuditoria", function(req, res) {
   });
 });
 
-router.get("/Cartera", function(req, res) {
-  sql.connect(constants.dbCluster, function(err) {
+router.get("/Cartera", function (req, res) {
+  sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
 
     request.query(
       "SELECT id, CONVERT(NVARCHAR(10),fecha_reclutamiento,103) as Fecha_Reclutamiento, nombres + ' '+ paterno + ' ' + materno as Candidato, CONVERT(NVARCHAR(10),fecha_nacimiento,103) as Fecha_Nacimiento, DATEDIFF([YEAR],fecha_nacimiento,GETDATE()) as Edad, edo_civil, tel_cel , tel_casa , email FROM CCS.dbo.SYS_Candidatos WHERE status in (1,2)",
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -286,15 +289,15 @@ router.get("/Cartera", function(req, res) {
   });
 });
 
-router.get("/CandidatosRolePlay", function(req, res) {
-  sql.connect(constants.dbCluster, function(err) {
+router.get("/CandidatosRolePlay", function (req, res) {
+  sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
 
     request.query(
       "SELECT id, nombres,paterno,materno, DATEDIFF([YEAR],fecha_nacimiento,GETDATE()) as Edad, edo_civil, campania, turno FROM CCS.dbo.SYS_Candidatos WHERE status = 3",
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -303,15 +306,15 @@ router.get("/CandidatosRolePlay", function(req, res) {
   });
 });
 
-router.get("/Candidato/:id", function(req, res) {
-  sql.connect(constants.dbCluster, function(err) {
+router.get("/Candidato/:id", function (req, res) {
+  sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
     request.input("ID", req.params.id);
     request.query(
       "SELECT * FROM CCS.dbo.SYS_Candidatos WHERE id= @ID",
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -321,7 +324,7 @@ router.get("/Candidato/:id", function(req, res) {
 });
 
 router.patch("/Candidato/:id", (req, res) => {
-  sql.connect(constants.dbCluster, err => {
+  sql.connect(constants.dbCluster, (err) => {
     if (err) console.log(err);
 
     var request = new sql.Request();
@@ -377,6 +380,7 @@ router.patch("/Candidato/:id", (req, res) => {
     var query = "";
 
     if (
+      req.body.status_entrevista == 0 ||
       req.body.status_entrevista == 1 ||
       req.body.status_entrevista == 2 ||
       req.body.status_entrevista == 3
@@ -431,7 +435,7 @@ router.patch("/Candidato/:id", (req, res) => {
      OUTPUT INSERTED.ID WHERE id= @ID`;
     }
 
-    request.query(query, function(err, recordset) {
+    request.query(query, function (err, recordset) {
       if (err) console.log(err);
 
       res.send(recordset);
@@ -439,8 +443,8 @@ router.patch("/Candidato/:id", (req, res) => {
   });
 });
 
-router.patch("/CandidatoRolePlay/:id", function(req, res) {
-  sql.connect(constants.dbCluster, function(err) {
+router.patch("/CandidatoRolePlay/:id", function (req, res) {
+  sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
@@ -490,7 +494,7 @@ router.patch("/CandidatoRolePlay/:id", function(req, res) {
        comentarios_roleplay=@COMENTARIOS,
        perfil_roleplay=@PERFIL
       OUTPUT INSERTED.ID WHERE id= @ID`,
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
