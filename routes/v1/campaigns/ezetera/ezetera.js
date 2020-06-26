@@ -13,8 +13,8 @@ router.get("/Top10Tipificaciones", (req, res) => {
   var procedure =
     "EXEC   [CCS].[dbo].[REP_WEB_REST_Ezetera_TOP_10] @TIPO = " +
     req.query.tipo +
-    ", @COLEGIO = " +
-    req.query.colegio;
+    ", @COLEGIO = '" +
+    req.query.colegio +"'"
   utils.executeQuery(res, procedure);
 });
 
