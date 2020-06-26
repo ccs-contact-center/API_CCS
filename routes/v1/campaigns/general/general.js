@@ -24,6 +24,7 @@ router.get('/General',jwtMW,function(req, res) {
     utils.executeQuery(res, procedure);
 })
 
+
 router.get('/Objetivos',jwtMW,function(req, res) {
     var query = "SELECT DISTINCT id_campania ,campania ,SLA,ABA,AHT,TT ,OCCY,QA FROM CCS.dbo.Campanias WHERE id_campania = " + req.query.campania;
     utils.executeQuery(res, query);
