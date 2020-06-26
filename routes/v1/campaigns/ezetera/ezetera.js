@@ -18,4 +18,10 @@ router.get("/Top10Tipificaciones", (req, res) => {
   utils.executeQuery(res, procedure);
 });
 
+router.get("/colegios", (req, res) => {
+  var procedure =
+    "SELECT colegio as value, colegio as label FROM Ezetera_in.dbo.colegios"
+  utils.executeQuery(res, procedure);
+});
+
 module.exports = router;
