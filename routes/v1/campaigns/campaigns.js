@@ -15,12 +15,29 @@ router.get("/Campanias", (req, res) => {
   utils.executeQuery(res, query);
 });
 
-router.get("/Avatar", jwtMW, function (req, res) {
+router.get("/Avatar", jwtMW, (req, res) => {
   var query =
     "SELECT DISTINCT avatar FROM [CCS].[dbo].[Campanias] WHERE id_campania = '" +
     req.query.id +
     "'";
   utils.executeQuery(res, query);
+});
+
+router.get("/getByname/:name", jwtMW, (req, res) => {
+  sql.connect(constants.dbCluster, (err) => {
+    if (err) console.log(err);
+
+    var request = new sql.Request();
+
+    request.query(
+      "SELECT id FROM CCS.dbo.SYS_Campanias",
+      (err, recordset) => {
+        if (err) console.log(err);
+
+        res.send(recordset);
+      }
+    );
+  });
 });
 
 module.exports = router;
