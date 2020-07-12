@@ -7,6 +7,7 @@ router.use("/users", require("./users"));
 router.use("/reports", require("./reports"));
 router.use("/personal", require("./personal"));
 router.use("/catalogs", require("./catalogs"));
+router.use("/campaigns", require("./campaigns"));
 
 router.get("/", function (req, res) {
   res.send("Respuesta desde " + os.hostname());

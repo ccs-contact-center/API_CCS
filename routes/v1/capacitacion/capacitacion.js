@@ -1,43 +1,41 @@
 var router = require("express").Router();
+var sql = require("mssql");
+var constants = require("../../../constants");
 
 router.get("/", (req, res) => {
   res.send("Endpoints Capacitacion");
 });
 
-//Declaramos un endpoont POST para recibir un payload en json
-router.post("/EjemploDany", (req, res) => {
-  //loggeamos en consola el req body para checar jerarquia y ver como llamamos los parametros
-  console.log(req.body);
-  //Creamos una conexión a  SQL con la configuracion del  40 en constants.db40
-  sql.connect(constants.db40, (err) => {
-    //Manejamos errores en la conexión
-    if (err) console.log(err);
+router.post("/ejemplo", (req, res) => {
+  res.send(req.body.prueba);
+});
 
-    //Declaramoos un nuevo request (Una petición única dentro de la conexión)
+router.post("/formularioEncuesta", (req, res) => {
+  sql.connect(constants.db40, (err) => {
+    if (err) console.log(err);
     var request = new sql.Request();
-    //Agregamos parametros, uno por cada  campo a recibir, del lado izquierdo el nombre del parametro y del lado derecho el parametro recibido del json
-    //(req.body trae el payload que enviamos desde la app)
-    //Ejemplo:
-    //{ parametro1:valor1, parametro2:valor2 }
-    //req.boody.parametro1 devolvería valor1
-    //Importante agregar parametros de esta forma para evitar inyección SQL
-    request.input("PARAMETRO1", req.body.parametro1);
-    request.input("PARAMETRO2", req.body.parametro2);
-    //Ejecutamos nuestra consulta SQL
-    //SUPER IMPORTANTE siempre tener una clausula output para poder devolver algo en nuestro endpoint
+
+    request.input("pregunta1", req.body.pregunta1);
+    request.input("pregunta2", req.body.pregunta2);
+    request.input("pregunta3", req.body.pregunta3);
+    request.input("pregunta4", req.body.pregunta4);
+    request.input("pregunta5", req.body.pregunta5);
+    request.input("pregunta6", req.body.pregunta6);
+    request.input("pregunta7", req.body.pregunta7);
+    request.input("pregunta8", req.body.pregunta8);
+    request.input("pregunta9", req.body.pregunta9);
+    request.input("pregunta10", req.body.pregunta10);
+    request.input("nombre", req.body.nombre);
+    request.input("paterno", req.body.paterno);
+    request.input("materno", req.body.materno);
     request.query(
-      `INSERT INTO [TUBASE.dbo.TUTABLA] (
-            status,
-            id_ccs,
+      `INSERT INTO [PruebaCurso].[dbo].[encuesta] (
+        pregunta1, pregunta2, pregunta3, pregunta4, pregunta5, pregunta6, pregunta7, pregunta8, pregunta9,  pregunta10, nombres, paterno, materno
         ) OUTPUT INSERTED.id VALUES (
-            @RECLUTADOR,
-            @RECLUTADOR
+            @pregunta1, @pregunta2,  @pregunta3,  @pregunta4,  @pregunta5,  @pregunta6,  @pregunta7,  @pregunta8,  @pregunta9,  @pregunta10, @nombre, @paterno, @materno
             )`,
-      //Manejamos los resultados, err en caso de error y recordset en caso de ejecución correcta
       (err, recordset) => {
-        //Si error, pintamos en consola el error devuelto
         if (err) console.log(err);
-        //Si se ejecuta correctamente, devolvemos el resultadoo del output de la consulta
         res.send(recordset);
       }
     );

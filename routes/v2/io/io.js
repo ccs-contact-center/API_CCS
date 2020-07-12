@@ -1,15 +1,12 @@
 var router = require("express").Router();
 var nodeMailer = require("nodemailer");
 var constants = require("../../../constants");
-const simpleGit = require("simple-git");
 
 router.get("/", (req, res) => {
-res.send('io')
-
+  res.send("io");
 });
 
-router.post("/send-email", function (req, res) {
-  console.log(process.env.MAIL_PSW);
+router.post("/send-email", (req, res) => {
   let transporter = nodeMailer.createTransport({
     host: constants.mailHost,
     port: constants.mailPort,
@@ -21,10 +18,9 @@ router.post("/send-email", function (req, res) {
   });
 
   let mailOptions = {
-    from: '"Notificaciones CCS" <ccs.notificaciones@ccscontactcenter.com>', // sender address
-    to: req.body.to, // list of receivers
-    subject: req.body.subject, // Subject line
-    //text: req.body.body, // plain text body
+    from: '"Notificaciones CCS" <ccs.notificaciones@ccscontactcenter.com>',
+    to: req.body.to,
+    subject: req.body.subject,
     html: "<html>" + req.body.body + "</html>", // html body
   };
 
@@ -35,12 +31,6 @@ router.post("/send-email", function (req, res) {
     console.log("Message %s sent: %s", info.messageId, info.response);
     res.status(200).send({ Status: "Enviado" });
   });
-});
-
-router.post("/gitHubPull", function (req, res) {
-  simpleGit().pull("origin", "master", { "--rebase": "true" });
-  console.log("Actualizado");
-  res.status(200).json({ Actualizado: true });
 });
 
 module.exports = router;

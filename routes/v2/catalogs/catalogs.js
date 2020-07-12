@@ -1,8 +1,5 @@
 var router = require("express").Router();
-var utils = require("../../../utils.js");
-
 var sql = require("mssql");
-var moment = require("moment");
 var constants = require("../../../constants");
 var exjwt = require("express-jwt");
 
@@ -10,17 +7,8 @@ const jwtMW = exjwt({
   secret: "Grhzu92E_s3cr3t",
 });
 
-const dbCluster = {
-  user: "sa",
-  password: "Grhzu92E_db",
-  server: "10.0.0.152",
-  database: "CodigosPostales",
-  connectionTimeout: 800000,
-  requestTimeout: 800000,
-};
-
 router.get("/clavesEstados/:estado", (req, res) => {
-  sql.connect(dbCluster, (err) => {
+  sql.connect(constants.dbCluster, (err) => {
     if (err) console.log(err);
 
     var request = new sql.Request();
@@ -189,7 +177,7 @@ router.get("/colonia/:estado/:col", (req, res) => {
 });
 
 router.get("/municipios", (req, res) => {
-  sql.connect(dbCluster, (err) => {
+  sql.connect(constants.dbCluster, (err) => {
     if (err) console.log(err);
 
     var request = new sql.Request();
@@ -206,7 +194,7 @@ router.get("/municipios", (req, res) => {
 });
 
 router.get("/colonias", (req, res) => {
-  sql.connect(dbCluster, (err) => {
+  sql.connect(constants.dbCluster, (err) => {
     if (err) console.log(err);
 
     var request = new sql.Request();
@@ -224,60 +212,64 @@ router.get("/colonias", (req, res) => {
 });
 
 router.get("/menu", (req, res) => {
-  sql.connect(dbCluster, (err) => {
+  sql.connect(constants.dbCluster, (err) => {
     if (err) console.log(err);
 
     var request = new sql.Request();
     request.input("ROLE", req.query.role);
-    request.query("EXEC CCS.dbo.GET_Menu @ROLE = @ROLE", (err, recordset) => {
-      if (err) console.log(err);
+    request.input("SU", req.query.su);
+    request.query(
+      "EXEC CCS.dbo.GET_Menu @ROLE = @ROLE, @SU = @SU",
+      (err, recordset) => {
+        if (err) console.log(err);
 
-      var menu = [];
+        var menu = [];
 
-      recordset.forEach((item) => {
-        var title = {
-          title: true,
-          name: item.name,
-          class: "text-center",
+        recordset.forEach((item) => {
+          var title = {
+            title: true,
+            name: item.name,
+            class: "text-center",
+          };
+
+          var singleSection = {
+            name: item.name,
+            url: item.url,
+            icon: item.icon,
+          };
+
+          var childrens = [];
+
+          if (item.hasChild === 1) {
+            childrens = recordset.filter(
+              (itemFiltered) => itemFiltered.parent === item.id
+            );
+          }
+
+          var childSection = {
+            name: item.name,
+            url: item.url,
+            icon: item.icon,
+            children: childrens,
+          };
+
+          //console.log(childrens.length >= 1);
+
+          if (item.title === 1) {
+            menu.push(title);
+          } else if (item.hasChild === 0 && item.parent === 0) {
+            menu.push(singleSection);
+          } else if (item.hasChild === 1) {
+            menu.push(childSection);
+          }
+        });
+
+        var menuOK = {
+          items: menu,
         };
-
-        var singleSection = {
-          name: item.name,
-          url: item.url,
-          icon: item.icon,
-        };
-
-        var childrens = [];
-
-        if (item.hasChild === 1) {
-          childrens = recordset.filter(
-            (itemFiltered) => itemFiltered.parent === item.id
-          );
-        }
-
-        var childSection = {
-          name: item.name,
-          url: item.url,
-          icon: item.icon,
-          children: childrens,
-        };
-
-        //console.log(childrens.length >= 1);
-
-        if (item.title === 1) {
-          menu.push(title);
-        } else if (item.hasChild === 0 && item.parent === 0) {
-          menu.push(singleSection);
-        } else if (item.hasChild === 1) {
-          menu.push(childSection);
-        }
-      });
-
-      var menuOK = {
-        items: menu,
-      };
-      res.send(menuOK);
-    });
+        res.send(menuOK);
+      }
+    );
   });
 });
 

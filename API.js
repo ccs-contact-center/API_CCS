@@ -4,6 +4,7 @@ var bodyParser = require("body-parser");
 var path = require("path");
 var log4js = require("log4js");
 var os = require("os");
+
 log4js.configure({
   appenders: {
     log: {
@@ -19,15 +20,21 @@ log4js.configure({
 const logger = log4js.getLogger("CCS");
 var WebSocket = require("ws");
 var Clients = require("./routes/socket/clients");
+const { now, max } = require("moment");
 const clients = new Clients();
+var moment = require("moment");
+const { time } = require("console");
 
-const PORT = process.env.PORT;
-//const PORT = 8082;
+//const PORT = process.env.PORT;
+const PORT = 8082;
 
 //Enabling CORS on API
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "Content-type,Authorization, id_ccs");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-type,Authorization, id_ccs"
+  );
   res.setHeader(
     "Access-Control-Allow-Methods",
     "POST, PUT, GET, OPTIONS,PATCH, DELETE"
@@ -71,7 +78,6 @@ const wss = new WebSocket.Server({ server, perMessageDeflate: false });
 
 app.wss = wss;
 app.logger = logger;
-
 
 function heartbeat() {
   this.isAlive = true;
