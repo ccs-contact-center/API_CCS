@@ -258,8 +258,9 @@ router.get("/UpdateChats", async (req, res) => {
 });
 
 router.get("/ChatStatus", async (req, res) => {
-  if (req.query.tipo === 0) {
+  if (req.query.tipo == 0 || req.query.tipo == 1) {
     var deletedFirst = await deleteToday();
+
     var inserted = await updateChats(
       "https://www.zopim.com/api/v2/chats/search?q=timestamp:[" +
         moment.utc().format("YYYY-MM-DDT00:00:00") +
@@ -270,6 +271,7 @@ router.get("/ChatStatus", async (req, res) => {
     );
 
     var results = await getChatStatus(req.query.tipo, req.query.totalizado);
+
     var deletedLast = await deleteToday();
 
     res.send(results);
