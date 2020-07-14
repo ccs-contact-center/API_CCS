@@ -92,10 +92,10 @@ const getChatStatus = async (tipo, totalizado) => {
 
 const deleteToday = async () => {
   var query =
-    "DELETE FROM Ezetera.dbo.Chats OUTPUT Deleted.* WHERE timestamp BETWEEN '" +
-    moment.utc().format("YYYY-MM-DD 00:00:00") +
+    " DELETE FROM Ezetera.dbo.Chats OUTPUT Deleted.* WHERE timestamp BETWEEN '" +
+    moment().format("YYYY-MM-DD 00:00:00") +
     "' AND '" +
-    moment.utc().add(1, "days").format("YYYY-MM-DD 00:00:00") +
+    moment().add(1, "days").format("YYYY-MM-DD 00:00:00") +
     "'";
 
   try {
@@ -263,11 +263,11 @@ router.get("/ChatStatus", async (req, res) => {
 
     var inserted = await updateChats(
       "https://www.zopim.com/api/v2/chats/search?q=timestamp:[" +
-        moment.utc().format("YYYY-MM-DDT00:00:00") +
+        moment().format("YYYY-MM-DDT00:00:00Z") +
         " TO " +
-        moment.utc().add(1, "days").format("YYYY-MM-DDT00:00:00") +
+        moment().add(1, "days").format("YYYY-MM-DDT00:00:00Z") +
         "] AND type:chat",
-      moment.utc().format("YYYY-MM-DD 00:00:00")
+      moment().format("YYYY-MM-DD 00:00:00")
     );
 
     var results = await getChatStatus(req.query.tipo, req.query.totalizado);
@@ -282,7 +282,7 @@ router.get("/ChatStatus", async (req, res) => {
 });
 router.get("/Top10Tipificaciones", (req, res) => {
   var procedure =
-    "EXEC   [CCS].[dbo].[REP_WEB_REST_Ezetera_TOP_10] @TIPO = " +
+    "EXEC [CCS].[dbo].[REP_WEB_REST_Ezetera_TOP_10] @TIPO = " +
     req.query.tipo +
     ", @COLEGIO = '" +
     req.query.colegio +
