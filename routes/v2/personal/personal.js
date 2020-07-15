@@ -55,6 +55,7 @@ sumString = (str) => {
     .reduce((acc, curr) => acc + curr.charCodeAt(0) - 96, 0);
 };
 
+
 router.get("/Candidatos", (req, res) => {
   let queryData = JSON.parse(req.query.status);
   let generateString = "";

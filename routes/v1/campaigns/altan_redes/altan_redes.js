@@ -37,13 +37,13 @@ router.get("/bases", function (req, res) {
     request.input("TOTALIZADO", req.query.totalizado);
     request.input("BASE", req.query.base);
 
-    request.query(
-      "SELECT * FROM altanredes_out.dbo.bases",
-      function (err, recordset) {
-        if (err) console.log(err);
-        res.send(recordset);
-      }
-    );
+    request.query("SELECT * FROM altanredes_out.dbo.bases", function (
+      err,
+      recordset
+    ) {
+      if (err) console.log(err);
+      res.send(recordset);
+    });
   });
 });
 
