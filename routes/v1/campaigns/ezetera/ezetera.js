@@ -14,7 +14,7 @@ const jwtMW = exjwt({
 setInterval(async () => {
   if (
     (os.hostname() === "MacBook-Air.local" || os.hostname() === "CCS-NODE1") &&
-    moment().format("hh:mm:ss") === "00:05:00"
+    moment().format("LT") === "1:00 AM"
   ) {
     console.log(moment().format() + " Llegó la hora");
     var maxdate = await getMaxDate();
