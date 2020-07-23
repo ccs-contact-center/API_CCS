@@ -107,4 +107,7 @@ router.delete("/post/:id", function (req, res) {
   });
 });
 
+router.get("/PruebaProduccion",(req,res)=>{
+  res.send('Pruebita')
+})
 module.exports = router;
