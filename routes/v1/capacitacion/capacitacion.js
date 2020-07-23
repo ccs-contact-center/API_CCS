@@ -1,6 +1,8 @@
 var router = require("express").Router();
 var sql = require("mssql");
 var constants = require("../../../constants");
+//Importamos moment (Sirve para manejar fechas y horas)
+var moment = require("moment");
 
 router.get("/", (req, res) => {
   res.send("Endpoints Capacitacion");
@@ -21,7 +23,7 @@ router.post("/formularioEncuesta", (req, res) => {
     request.input("pregunta4", req.body.pregunta4);
     request.input("pregunta5", req.body.pregunta5);
     request.input("pregunta6", req.body.pregunta6);
-  
+
     request.input("nombre", req.body.nombre);
     request.input("paterno", req.body.paterno);
     request.input("materno", req.body.materno);
@@ -40,36 +42,35 @@ router.post("/formularioEncuesta", (req, res) => {
   });
 });
 
+router.post("/formularioEncuesta", (req, res) => {
+  sql.connect(constants.db40, (err) => {
+    if (err) console.log(err);
+    var request = new sql.Request();
 
- router.post("/formularioEncuesta", (req, res) => {
-   sql.connect(constants.db40, (err) => {
-     if (err) console.log(err);
-     var request = new sql.Request();
+    request.input("pregunta1", req.body.pregunta1);
+    request.input("pregunta2", req.body.pregunta2);
+    request.input("pregunta3", req.body.pregunta3);
+    request.input("pregunta4", req.body.pregunta4);
+    request.input("pregunta5", req.body.pregunta5);
+    request.input("pregunta6", req.body.pregunta6);
 
-     request.input("pregunta1", req.body.pregunta1);
-     request.input("pregunta2", req.body.pregunta2);
-     request.input("pregunta3", req.body.pregunta3);
-     request.input("pregunta4", req.body.pregunta4);
-     request.input("pregunta5", req.body.pregunta5);
-     request.input("pregunta6", req.body.pregunta6);
-  
-     request.input("nombre", req.body.nombre);
-     request.input("paterno", req.body.paterno);
-     request.input("materno", req.body.materno);
-     request.query(
-       `INSERT INTO [PruebaCurso].[dbo].[encuesta] (
+    request.input("nombre", req.body.nombre);
+    request.input("paterno", req.body.paterno);
+    request.input("materno", req.body.materno);
+    request.query(
+      `INSERT INTO [PruebaCurso].[dbo].[encuesta] (
          pregunta1, pregunta2, pregunta3, pregunta4, pregunta5, pregunta6,  nombres, paterno, materno
          ) 
         OUTPUT INSERTED.id VALUES (
            @pregunta1, @pregunta2,  @pregunta3,  @pregunta4,  @pregunta5,  @pregunta6,   @nombre, @paterno, @materno
              )`,
-       (err, recordset) => {
-         if (err) console.log(err);
-         res.send(recordset);
-       }
-     );
-   });
- });
+      (err, recordset) => {
+        if (err) console.log(err);
+        res.send(recordset);
+      }
+    );
+  });
+});
 
 router.post("/formEtiquetaActividad2", (req, res) => {
   sql.connect(constants.db40, (err) => {
@@ -104,12 +105,10 @@ router.post("/formEtiquetaActividad2", (req, res) => {
       (err, recordset) => {
         if (err) console.log(err);
         res.send(recordset);
-        
       }
     );
   });
 });
-
 
 // router.post("/actividad1C", (req, res) => {
 //   sql.connect(constants.db40, (err) => {
@@ -129,13 +128,13 @@ router.post("/formEtiquetaActividad2", (req, res) => {
 //     request.input("materno", req.body.materno);
 //     request.query(
 //       `INSERT INTO [PruebaCurso].[dbo].[usoC] (
-//         Cosina, Cacerola, Abesedario, Bronseado, Funcionario, 
-//         Diferencias, Canselar, Desición, Conferencia, 
+//         Cosina, Cacerola, Abesedario, Bronseado, Funcionario,
+//         Diferencias, Canselar, Desición, Conferencia,
 //         nombres, paterno, materno
-//         ) 
+//         )
 //        OUTPUT INSERTED.id VALUES (
-//           @Cosina, @Cacerola,  @Abesedario,  @Bronseado,  @Funcionario, 
-//           @Diferencias, @Canselar,  @Desición,  @Conferencia,   
+//           @Cosina, @Cacerola,  @Abesedario,  @Bronseado,  @Funcionario,
+//           @Diferencias, @Canselar,  @Desición,  @Conferencia,
 //           @nombres, @paterno, @materno
 //             )`,
 //       (err, recordset) => {
@@ -147,24 +146,36 @@ router.post("/formEtiquetaActividad2", (req, res) => {
 // });
 
 router.post("/actividad1C", (req, res) => {
+  //"Deconstruimos" los campos que queremos extraer
+  var { id_ccs, form } = req.body;
+  //Borramos los campos de req.boody (Ya los tenemos en variables gracias a la deconstruccion de arriba)
+  delete req.body.id_ccs;
+  delete req.body.form;
+
   sql.connect(constants.db40, (err) => {
     if (err) console.log(err);
     var request = new sql.Request();
-    request.input("curso", req.body.curso);
-    request.input("fecha", req.body.fecha);
-    request.input("id_ccs", req.body.id_ccs);
-    request.input("formaulario", req.body.formaulario);
-
+    //La variable form trae el nombre de la evaluacion
+    request.input("curso", form);
+    //usamos el paquete moment para traer la fecha actual, preferible hacerlo aqui en Node y no mandarla desde React
+    //Porque si lo mandamos deesde React, el usuario puede manipular la fecha de su compu y alterar la fecha de aplicacion
+    //Si obtenemos la fecha actual en el servidor, no se puede alterar
+    //Le damos formato
+    request.input("fecha", moment().format("YYYY-MM-DD HH:mm:SS"));
+    //La variable id_ccs trae el id del agente
+    request.input("id_ccs", id_ccs);
+    //Aqui mandamos el string completo del req.body al que previamente le borramos los datos quee no queremos que se guarden aqui (id_ccs,form)
+    request.input("formaulario", JSON.stringify(req.body));
+    //############### AQUI FALTA PONER LA CALIFICACION DE LA ACTIVIDAD ####################
     request.query(
       `INSERT INTO [cursos].[dbo].[curso] (
-       
         curso, fecha, id_ccs,
         formaulario
         ) 
        OUTPUT INSERTED.id VALUES (
          
           @curso, @fecha, @id_ccs,
-          @formaulario[]
+          @formaulario
             )`,
       (err, recordset) => {
         if (err) console.log(err);
@@ -174,8 +185,6 @@ router.post("/actividad1C", (req, res) => {
   });
 });
 
-
-
 router.post("/actividad2C", (req, res) => {
   sql.connect(constants.db40, (err) => {
     if (err) console.log(err);
@@ -183,19 +192,19 @@ router.post("/actividad2C", (req, res) => {
     request.input("cir1", req.body.cir1);
     request.input("cir2", req.body.cir2);
     request.input("cir3", req.body.cir3);
-  
+
     request.input("ducir1", req.body.ducir1);
     request.input("ducir2", req.body.ducir2);
     request.input("ducir3", req.body.ducir3);
-  
+
     request.input("ancia1", req.body.ancia1);
     request.input("ancia2", req.body.ancia2);
     request.input("ancia3", req.body.ancia3);
-  
+
     request.input("ancio1", req.body.ancio1);
     request.input("ancio2", req.body.ancio2);
     request.input("ancio3", req.body.ancio3);
-  
+
     request.input("nombres", req.body.nombres);
     request.input("paterno", req.body.paterno);
     request.input("materno", req.body.materno);
@@ -221,9 +230,5 @@ router.post("/actividad2C", (req, res) => {
     );
   });
 });
-
-
-
-
 
 module.exports = router;
