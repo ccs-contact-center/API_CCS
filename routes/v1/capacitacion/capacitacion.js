@@ -111,32 +111,60 @@ router.post("/formEtiquetaActividad2", (req, res) => {
 });
 
 
+// router.post("/actividad1C", (req, res) => {
+//   sql.connect(constants.db40, (err) => {
+//     if (err) console.log(err);
+//     var request = new sql.Request();
+//     request.input("Cosina", req.body.Cosina);
+//     request.input("Cacerola", req.body.Cacerola);
+//     request.input("Abesedario", req.body.Abesedario);
+//     request.input("Bronseado", req.body.Bronseado);
+//     request.input("Funcionario", req.body.Funcionario);
+//     request.input("Diferencias", req.body.Diferencias);
+//     request.input("Canselar", req.body.Canselar);
+//     request.input("Desición", req.body.Desición);
+//     request.input("Conferencia", req.body.Conferencia);
+//     request.input("nombres", req.body.nombres);
+//     request.input("paterno", req.body.paterno);
+//     request.input("materno", req.body.materno);
+//     request.query(
+//       `INSERT INTO [PruebaCurso].[dbo].[usoC] (
+//         Cosina, Cacerola, Abesedario, Bronseado, Funcionario, 
+//         Diferencias, Canselar, Desición, Conferencia, 
+//         nombres, paterno, materno
+//         ) 
+//        OUTPUT INSERTED.id VALUES (
+//           @Cosina, @Cacerola,  @Abesedario,  @Bronseado,  @Funcionario, 
+//           @Diferencias, @Canselar,  @Desición,  @Conferencia,   
+//           @nombres, @paterno, @materno
+//             )`,
+//       (err, recordset) => {
+//         if (err) console.log(err);
+//         res.send(recordset);
+//       }
+//     );
+//   });
+// });
+
 router.post("/actividad1C", (req, res) => {
   sql.connect(constants.db40, (err) => {
     if (err) console.log(err);
     var request = new sql.Request();
-    request.input("Cosina", req.body.Cosina);
-    request.input("Cacerola", req.body.Cacerola);
-    request.input("Abesedario", req.body.Abesedario);
-    request.input("Bronseado", req.body.Bronseado);
-    request.input("Funcionario", req.body.Funcionario);
-    request.input("Diferencias", req.body.Diferencias);
-    request.input("Canselar", req.body.Canselar);
-    request.input("Desición", req.body.Desición);
-    request.input("Conferencia", req.body.Conferencia);
-    request.input("nombres", req.body.nombres);
-    request.input("paterno", req.body.paterno);
-    request.input("materno", req.body.materno);
+    request.input("curso", req.body.curso);
+    request.input("fecha", req.body.fecha);
+    request.input("id_ccs", req.body.id_ccs);
+    request.input("formaulario", req.body.formaulario);
+
     request.query(
-      `INSERT INTO [PruebaCurso].[dbo].[usoC] (
-        Cosina, Cacerola, Abesedario, Bronseado, Funcionario, 
-        Diferencias, Canselar, Desición, Conferencia, 
-        nombres, paterno, materno
+      `INSERT INTO [cursos].[dbo].[curso] (
+       
+        curso, fecha, id_ccs,
+        formaulario
         ) 
        OUTPUT INSERTED.id VALUES (
-          @Cosina, @Cacerola,  @Abesedario,  @Bronseado,  @Funcionario, 
-          @Diferencias, @Canselar,  @Desición,  @Conferencia,   
-          @nombres, @paterno, @materno
+         
+          @curso, @fecha, @id_ccs,
+          @formaulario[]
             )`,
       (err, recordset) => {
         if (err) console.log(err);
@@ -145,6 +173,7 @@ router.post("/actividad1C", (req, res) => {
     );
   });
 });
+
 
 
 router.post("/actividad2C", (req, res) => {
