@@ -145,7 +145,7 @@ router.post("/formEtiquetaActividad2", (req, res) => {
 //   });
 // });
 
-router.post("/actividad1C", (req, res) => {
+router.post("/Actividades", (req, res) => {
   //"Deconstruimos" los campos que queremos extraer
   var { id_ccs, form } = req.body;
   //Borramos los campos de req.boody (Ya los tenemos en variables gracias a la deconstruccion de arriba)
