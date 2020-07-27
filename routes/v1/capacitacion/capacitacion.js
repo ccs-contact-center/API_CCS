@@ -147,10 +147,7 @@ router.post("/formEtiquetaActividad2", (req, res) => {
 
 router.post("/Actividades", (req, res) => {
   //"Deconstruimos" los campos que queremos extraer
-  var { id_ccs, form } = req.body;
-  //Borramos los campos de req.boody (Ya los tenemos en variables gracias a la deconstruccion de arriba)
-  delete req.body.id_ccs;
-  delete req.body.form;
+  var { id_ccs, form, ...rest } = req.body;
 
   sql.connect(constants.db40, (err) => {
     if (err) console.log(err);
@@ -164,8 +161,8 @@ router.post("/Actividades", (req, res) => {
     request.input("fecha", moment().format("YYYY-MM-DD HH:mm:SS"));
     //La variable id_ccs trae el id del agente
     request.input("id_ccs", id_ccs);
-    //Aqui mandamos el string completo del req.body al que previamente le borramos los datos quee no queremos que se guarden aqui (id_ccs,form)
-    request.input("formaulario", JSON.stringify(req.body));
+    //Aqui usamos el rest, que es el body menos los campos que deconstruimos
+    request.input("formaulario", JSON.stringify(rest));
     //############### AQUI FALTA PONER LA CALIFICACION DE LA ACTIVIDAD ####################
     request.query(
       `INSERT INTO [cursos].[dbo].[curso] (
