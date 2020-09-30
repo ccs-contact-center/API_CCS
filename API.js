@@ -220,4 +220,5 @@ app.get("/Socket/Clientes/:username", function (req, res) {
 
 app.use("/v1", require("./routes/v1"));
 app.use("/v2", require("./routes/v2"));
+app.use("/inConcertAPI", require("./routes/inConcertAPI"));
 app.use("/test", require("./routes/test"));
