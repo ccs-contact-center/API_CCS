@@ -21,7 +21,7 @@
     "moment": "^2.24.0",
     "mssql": "3.0.0",
     "njwt": "^1.0.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "nodemailer": "^6.3.0",
     "simple-git": "^1.122.0",
     "ws": "^7.2.5",
