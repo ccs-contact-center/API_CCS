@@ -6,7 +6,7 @@ var constants = require("../../../constants");
 var utils = require("../../../utils.js");
 var fetch = require("node-fetch");
 var exjwt = require("express-jwt");
-var json2html = require("node-json2html");
+var html_tablify = require("html-tablify");
 
 const e = require("express");
 
@@ -282,10 +282,14 @@ router.get("/AcumuladoresCampanias", (req, res) => {
       `EXEC inConcert.dbo.AcumuladoresCampania @INTERVALO = @INTERVALO ,@CAMPAIGN = @CAMPAIGN,@FECHA_INI = @FECHA_INI,@FECHA_FIN = @FECHA_FIN`,
       (err, recordset) => {
         if (err) console.log(err);
-        let template = { "<>": "div", html: '${Campaign} ${Date} ${Ate<5"} ${Ate<10"} ${Ate<15"} ${Ate<20"} ${Aba<5"} ${Aba<10"} ${Aba<15"} ${Aba<20"} ${Atendidas} ${Abandonadas} ${ATT} ${ASA} ${AAT}'};
-        let html = json2html.transform(recordset, template);
 
-        res.send(html);
+        var options = {
+          data: recordset,
+        };
+
+        var html_data = html_tablify.tablify(options);
+
+        res.send(html_data);
       }
     );
   });
