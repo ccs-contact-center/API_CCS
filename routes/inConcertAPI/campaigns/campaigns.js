@@ -269,7 +269,7 @@ router.get("/Insertar", async (req, res) => {
   res.send(x);
 });
 
-router.get("/AcumuladoresCampanias", (req, res) => {
+router.get("/AcumuladoresCampanias/:format", (req, res) => {
   sql.connect(constants.dbCluster, (err) => {
     if (err) console.log(err);
 
@@ -283,13 +283,20 @@ router.get("/AcumuladoresCampanias", (req, res) => {
       (err, recordset) => {
         if (err) console.log(err);
 
+        var style = `<style> table{border:1px solid #1c6ea4;background-color:#eee;width:100%;text-align:center;border-collapse:collapse}table td,table th{border:1px solid #aaa;padding:3px 2px}table tbody td{font-size:13px}table tr:nth-child(even){background:#d0e4f5}table th{background:#1c6ea4;background:-moz-linear-gradient(top,#5592bb 0,#327cad 66%,#1c6ea4 100%);background:-webkit-linear-gradient(top,#5592bb 0,#327cad 66%,#1c6ea4 100%);background:linear-gradient(to bottom,#5592bb 0,#327cad 66%,#1c6ea4 100%);border-bottom:2px solid #444}table th{font-size:15px;font-weight:700;color:#fff;border-left:2px solid #d0e4f5}table th:first-child{border-left:none}</style> `;
+
         var options = {
           data: recordset,
         };
 
         var html_data = html_tablify.tablify(options);
-
-        res.send(html_data);
+        if (req.params.format === "html") {
+          res.send(style + html_data);
+        } else if (req.params.format === "json") {
+          res.send(recordset);
+        } else {
+          res.send("Formato no valido, debe ser html o json");
+        }
       }
     );
   });
