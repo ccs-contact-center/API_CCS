@@ -276,10 +276,11 @@ router.get("/AcumuladoresCampanias/:format", (req, res) => {
     var request = new sql.Request();
     request.input("INTERVALO", req.query.intervalo);
     request.input("CAMPAIGN", req.query.campaign);
+    request.input("SKILL", req.query.skill);
     request.input("FECHA_INI", req.query.fecha_ini);
     request.input("FECHA_FIN", req.query.fecha_fin);
     request.query(
-      `EXEC inConcert.dbo.AcumuladoresCampania @INTERVALO = @INTERVALO ,@CAMPAIGN = @CAMPAIGN,@FECHA_INI = @FECHA_INI,@FECHA_FIN = @FECHA_FIN`,
+      `EXEC inConcert.dbo.AcumuladoresCampania @INTERVALO = @INTERVALO ,@CAMPAIGN = @CAMPAIGN,@SKILL = @SKILL,@FECHA_INI = @FECHA_INI,@FECHA_FIN = @FECHA_FIN`,
       (err, recordset) => {
         if (err) console.log(err);
 
