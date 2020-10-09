@@ -277,8 +277,14 @@ router.get("/AcumuladoresCampanias/:format", (req, res) => {
     request.input("INTERVALO", req.query.intervalo);
     request.input("CAMPAIGN", req.query.campaign);
     request.input("SKILL", req.query.skill);
-    request.input("FECHA_INI", req.query.fecha_ini);
-    request.input("FECHA_FIN", req.query.fecha_fin);
+    request.input(
+      "FECHA_INI",
+      moment(req.query.fecha_ini, "DD/MM/YYYY").format("MM-DD-YYYY")
+    );
+    request.input(
+      "FECHA_FIN",
+      moment(req.query.fecha_fin, "DD/MM/YYYY").format("MM-DD-YYYY")
+    );
     request.query(
       `EXEC inConcert.dbo.AcumuladoresCampania @INTERVALO = @INTERVALO ,@CAMPAIGN = @CAMPAIGN,@SKILL = @SKILL,@FECHA_INI = @FECHA_INI,@FECHA_FIN = @FECHA_FIN`,
       (err, recordset) => {
