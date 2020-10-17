@@ -2,8 +2,8 @@ var router = require("express").Router();
 var sql = require("mssql");
 var os = require("os");
 var moment = require("moment");
-var constants = require("../../../constants");
-var utils = require("../../../utils.js");
+var constants = require("../../../../constants");
+var utils = require("../../../../utils.js");
 var fetch = require("node-fetch");
 var exjwt = require("express-jwt");
 var html_tablify = require("html-tablify");
@@ -270,43 +270,67 @@ router.get("/Insertar", async (req, res) => {
 });
 
 router.get("/AcumuladoresCampanias/:format", (req, res) => {
-  sql.connect(constants.dbCluster, (err) => {
-    if (err) console.log(err);
+  let notDate =
+    req.query.fecha_ini === undefined || req.query.fecha_fin === undefined;
 
-    var request = new sql.Request();
-    request.input("INTERVALO", req.query.intervalo);
-    request.input("CAMPAIGN", req.query.campaign);
-    request.input("SKILL", req.query.skill);
-    request.input(
-      "FECHA_INI",
-      moment(req.query.fecha_ini, "DD/MM/YYYY").format("MM-DD-YYYY")
-    );
-    request.input(
-      "FECHA_FIN",
-      moment(req.query.fecha_fin, "DD/MM/YYYY").format("MM-DD-YYYY")
-    );
-    request.query(
-      `EXEC inConcert.dbo.AcumuladoresCampania @INTERVALO = @INTERVALO ,@CAMPAIGN = @CAMPAIGN,@SKILL = @SKILL,@FECHA_INI = @FECHA_INI,@FECHA_FIN = @FECHA_FIN`,
-      (err, recordset) => {
-        if (err) console.log(err);
+  let custom = parseInt(req.query.intervalo);
 
-        var style = `<style> table{border:1px solid #1c6ea4;background-color:#eee;width:100%;text-align:center;border-collapse:collapse}table td,table th{border:1px solid #aaa;padding:3px 2px}table tbody td{font-size:13px}table tr:nth-child(even){background:#d0e4f5}table th{background:#1c6ea4;background:-moz-linear-gradient(top,#5592bb 0,#327cad 66%,#1c6ea4 100%);background:-webkit-linear-gradient(top,#5592bb 0,#327cad 66%,#1c6ea4 100%);background:linear-gradient(to bottom,#5592bb 0,#327cad 66%,#1c6ea4 100%);border-bottom:2px solid #444}table th{font-size:15px;font-weight:700;color:#fff;border-left:2px solid #d0e4f5}table th:first-child{border-left:none}</style> `;
+  if (notDate === true && custom === 4) {
+    res.status(400).send({
+      error: true,
+      msg:
+        "El tipo 4 'Custom' debe de ir acompañado de los parametros fecha_ini y fecha_fin.",
+      ej:
+        "https://api.ccscontactcenter.com/inConcertAPI/Campaigns/AcumuladoresCampanias/html?intervalo=4&agrupado=1&totalizado=0&campaign=safelite||&skill=-1&fecha_ini=01/10/2020&fecha_fin=10/10/2020",
+    });
+  } else {
+    sql.connect(constants.dbCluster, (err) => {
+      if (err) console.log(err);
 
-        var options = {
-          data: recordset,
-        };
+      var request = new sql.Request();
+      request.input("INTERVALO", req.query.intervalo);
+      request.input("AGRUPADO", req.query.agrupado);
+      request.input("TOTALIZADO", req.query.totalizado);
+      request.input("CAMPAIGN", req.query.campaign);
+      request.input("SKILL", req.query.skill);
+      request.input(
+        "FECHA_INI",
+        moment(req.query.fecha_ini, "DD/MM/YYYY").format("MM-DD-YYYY")
+      );
+      request.input(
+        "FECHA_FIN",
+        moment(req.query.fecha_fin, "DD/MM/YYYY").format("MM-DD-YYYY")
+      );
+      request.query(
+        `EXEC inConcert.dbo.AcumuladoresCampania @INTERVALO = @INTERVALO, @AGRUPADO = @AGRUPADO, @TOTALIZADO=@TOTALIZADO, @CAMPAIGN = @CAMPAIGN,@SKILL = @SKILL,@FECHA_INI = @FECHA_INI,@FECHA_FIN = @FECHA_FIN`,
+        (err, recordset) => {
+          if (err) console.log(err);
 
-        var html_data = html_tablify.tablify(options);
-        if (req.params.format === "html") {
-          res.send(style + html_data);
-        } else if (req.params.format === "json") {
-          res.send(recordset);
-        } else {
-          res.send("Formato no valido, debe ser html o json");
+          var style = `<style> table{border:1px solid #1c6ea4;background-color:#eee;width:100%;text-align:center;border-collapse:collapse}table td,table th{border:1px solid #aaa;padding:3px 2px}table tbody td{font-size:13px}table tr:nth-child(even){background:#d0e4f5}table th{background:#1c6ea4;background:-moz-linear-gradient(top,#5592bb 0,#327cad 66%,#1c6ea4 100%);background:-webkit-linear-gradient(top,#5592bb 0,#327cad 66%,#1c6ea4 100%);background:linear-gradient(to bottom,#5592bb 0,#327cad 66%,#1c6ea4 100%);border-bottom:2px solid #444}table th{font-size:15px;font-weight:700;color:#fff;border-left:2px solid #d0e4f5}table th:first-child{border-left:none}</style> `;
+
+          var options = {
+            data: recordset,
+          };
+
+          var html_data = html_tablify.tablify(options);
+
+          if (recordset.length === 0) {
+            res
+              .status(404)
+              .send({ error: false, msg: "No hay resultados", ej: "empty" });
+          } else {
+            if (req.params.format === "html") {
+              res.send(style + html_data);
+            } else if (req.params.format === "json") {
+              res.send(recordset);
+            } else {
+              res.send("Formato no valido, debe ser html o json");
+            }
+          }
         }
-      }
-    );
-  });
+      );
+    });
+  }
 });
 
 router.get("/Test", (req, res) => {
