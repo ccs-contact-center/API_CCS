@@ -145,13 +145,20 @@ router.put("/clientes/:client", function (req, res) {
     timeZone: "America/Mexico_City",
   });
 
-  var entrega_vivienda;
+  var entrega_vivienda, entrega_escrituras;
 
   if (req.body.entrega_vivienda === null) {
     entrega_vivienda = "NULL";
   } else {
     entrega_vivienda =
       "CONVERT(VARCHAR(10),'" + req.body.entrega_vivienda + "',101)";
+  }
+
+  if (req.body.entrega_escrituras === null) {
+    entrega_escrituras = "NULL";
+  } else {
+    entrega_escrituras =
+      "CONVERT(VARCHAR(10),'" + req.body.entrega_escrituras + "',101)";
   }
 
   var insertNew =
@@ -197,9 +204,9 @@ router.put("/clientes/:client", function (req, res) {
     req.body.email +
     "', entrega_vivienda=" +
     entrega_vivienda +
-    ", entrega_escrituras=CONVERT(VARCHAR(10),'" +
-    req.body.entrega_escrituras +
-    "',101), no_cliente='" +
+    ", entrega_escrituras=" +
+    entrega_escrituras +
+    ",  no_cliente='" +
     req.body.no_cliente +
     "' WHERE no_cliente='" +
     req.body.no_cliente +
