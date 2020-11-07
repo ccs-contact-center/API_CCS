@@ -15,12 +15,13 @@ const jwtMW = exjwt({
 });
 
 const GetCampaigns = async (url, date) => {
-  const interactions = [];
+  let interactions = [];
 
   try {
     let i = 1;
     while (url) {
-      const response = await await fetch(url + "/" + i, {
+      let urlOK = url + i;
+      const response = await await fetch(urlOK, {
         headers: {
           "x-api-key": "c9a6dae22a293af4ead2a0ef9392e271",
         },
@@ -33,6 +34,7 @@ const GetCampaigns = async (url, date) => {
       const res = await response.json();
 
       interactions.push(res.items);
+
       i = i + 1;
 
       res.items.length === 2000 ? (url = url) : (url = null);
@@ -40,6 +42,14 @@ const GetCampaigns = async (url, date) => {
   } catch (e) {
     console.log(e);
   }
+
+  let interOK = [];
+
+  interactions.forEach((page) => {
+    page.forEach((item) => {
+      interOK.push(item);
+    });
+  });
 
   var data = sql
     .connect(constants.dbCluster)
@@ -146,7 +156,7 @@ const GetCampaigns = async (url, date) => {
       table.columns.add("FirstAtteActor", sql.VarChar(255), { nullable: true });
       table.columns.add("SourceHangup", sql.VarChar(255), { nullable: true });
 
-      interactions[0].forEach((arr) => {
+      interOK.forEach((arr) => {
         table.rows.add(
           arr.Id,
           arr.VirtualCC,
@@ -254,7 +264,7 @@ function parseDate(input) {
   return new Date(
     moment
       .utc(input, "DD/MM/YYYY HH:mm:ss")
-      .subtract(5, "hours")
+      .subtract(4, "hours")
       .format("YYYY-MM-DD HH:mm:ss")
   );
 }

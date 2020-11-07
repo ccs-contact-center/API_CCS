@@ -6,17 +6,17 @@ var sql = require("mssql");
 var exjwt = require("express-jwt");
 
 const jwtMW = exjwt({
-  secret: "Grhzu92E_s3cr3t"
+  secret: "Grhzu92E_s3cr3t",
 });
 
-router.get("/clientes/", function(req, res) {
+router.get("/clientes/", function (req, res) {
   var query =
     "SELECT no_cliente ,nombres ,paterno ,materno ,tel1 ,tel2 ,plaza  ,desarrollo ,cerrada ,manzana ,lote,interior FROM SQLCLUSTER.CasasAtlas.dbo.SYS_Clientes";
 
   utils.executeQuery(res, query);
 });
 
-router.get("/ticket", function(req, res) {
+router.get("/ticket", function (req, res) {
   var query =
     `SELECT
     a.nombre + ' ' + a.paterno + ' ' + a.materno as 'Cliente', 
@@ -44,7 +44,7 @@ where a.clave_reporte = '` +
   utils.executeQuery(res, query);
 });
 
-router.post("/clientes/", function(req, res) {
+router.post("/clientes/", function (req, res) {
   var entrega_vivienda = "";
   var entrega_escrituras = "";
 
@@ -112,18 +112,18 @@ router.post("/clientes/", function(req, res) {
     ")";
   console.log(query);
 
-  sql.connect(constants.dbConfig, function(err) {
+  sql.connect(constants.dbConfig, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
 
-    request.query(query, function(err, recordset) {
+    request.query(query, function (err, recordset) {
       if (err) console.log(err);
 
       res.status(200).json({
         sucess: true,
         inserted: "OK",
-        err: "OK"
+        err: "OK",
       });
       //res.send("" + recordset[0].Id + "");
     });
@@ -131,7 +131,7 @@ router.post("/clientes/", function(req, res) {
   //utils.executeQuery(res, query);
 });
 
-router.get("/clientes/:client", function(req, res) {
+router.get("/clientes/:client", function (req, res) {
   var query =
     "SELECT id,no_cliente,nombres ,paterno ,materno,sexo,CONVERT(NVARCHAR(10),fecha_nacimiento,126) as fecha_nacimiento ,estado_civil,plaza ,desarrollo,cerrada,prototipo,sector,supermanzana ,manzana,lote ,interior ,tel1 ,ext1 ,tel2  ,ext2 ,email ,estado,CONVERT(NVARCHAR(10),CONVERT(DATETIME,entrega_vivienda),126) as entrega_vivienda ,CONVERT(NVARCHAR(10),entrega_escrituras,126) as entrega_escrituras FROM SQLCLUSTER.CasasAtlas.dbo.SYS_Clientes WHERE no_cliente =" +
     req.params.client;
@@ -139,11 +139,20 @@ router.get("/clientes/:client", function(req, res) {
   utils.executeQuery(res, query);
 });
 
-router.put("/clientes/:client", function(req, res) {
+router.put("/clientes/:client", function (req, res) {
   var now = new Date();
   var curDate = now.toLocaleString("es-MX", {
-    timeZone: "America/Mexico_City"
+    timeZone: "America/Mexico_City",
   });
+
+  var entrega_vivienda;
+
+  if (req.body.entrega_vivienda === "null") {
+    entrega_vivienda = "NULL";
+  } else {
+    entrega_vivienda =
+      "CONVERT(VARCHAR(10),'" + req.body.entrega_vivienda + "',101)";
+  }
 
   var insertNew =
     "UPDATE SQLCLUSTER.CasasAtlas.dbo.SYS_Clientes SET nombres = '" +
@@ -186,9 +195,9 @@ router.put("/clientes/:client", function(req, res) {
     req.body.ext2 +
     "', email='" +
     req.body.email +
-    "', entrega_vivienda=CONVERT(VARCHAR(10),'" +
-    req.body.entrega_vivienda +
-    "',101), entrega_escrituras=CONVERT(VARCHAR(10),'" +
+    "', entrega_vivienda=" +
+    entrega_vivienda +
+    ", entrega_escrituras=CONVERT(VARCHAR(10),'" +
     req.body.entrega_escrituras +
     "',101), no_cliente='" +
     req.body.no_cliente +
@@ -198,32 +207,32 @@ router.put("/clientes/:client", function(req, res) {
 
   console.log(insertNew);
 
-  sql.connect(constants.dbConfig, function(err) {
+  sql.connect(constants.dbConfig, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
 
-    request.query(insertNew, function(err, recordset) {
+    request.query(insertNew, function (err, recordset) {
       if (err) console.log(err);
 
       res.status(200).json({
         sucess: true,
         inserted: "OK",
-        err: "OK"
+        err: "OK",
       });
       //res.send("" + recordset[0].Id + "");
     });
   });
 });
 
-router.get("/racs/", function(req, res) {
+router.get("/racs/", function (req, res) {
   var query =
     "SELECT clave_reporte,CONVERT(NVARCHAR(10),fecha_alta, 103) as fecha_alta,contacto ,nombre + ' ' + paterno + ' ' + materno as titular,id_cliente,plaza,desarrollo,prototipo,cerrada,manzana,lote ,interior FROM SQLCLUSTER.CasasAtlas.dbo.SYS_RACS ORDER BY id DESC";
 
   utils.executeQuery(res, query);
 });
 
-router.get("/racs/:client", function(req, res) {
+router.get("/racs/:client", function (req, res) {
   var query =
     "SELECT clave_reporte,CONVERT(NVARCHAR(10),fecha_alta, 103) as fecha_alta,contacto ,nombre + ' ' + paterno + ' ' + materno as titular,id_cliente,plaza,desarrollo,prototipo,cerrada,manzana,lote ,interior FROM SQLCLUSTER.CasasAtlas.dbo.SYS_RACS WHERE id_cliente ='" +
     req.params.client +
@@ -232,7 +241,7 @@ router.get("/racs/:client", function(req, res) {
   utils.executeQuery(res, query);
 });
 
-router.get("/rac/:id", function(req, res) {
+router.get("/rac/:id", function (req, res) {
   var query =
     "SELECT detalles as descripcion,descripcion as status, racs,clave_reporte,CONVERT(NVARCHAR(10),fecha_alta, 103) as fecha_alta,contacto ,nombre + ' ' + paterno + ' ' + materno as titular,id_cliente,plaza,desarrollo,prototipo,cerrada,manzana,lote ,interior FROM SQLCLUSTER.CasasAtlas.dbo.SYS_RACS WHERE clave_reporte ='" +
     req.params.id +
@@ -241,10 +250,10 @@ router.get("/rac/:id", function(req, res) {
   utils.executeQuery(res, query);
 });
 
-router.put("/rac/:id", function(req, res) {
+router.put("/rac/:id", function (req, res) {
   var now = new Date();
   var curDate = now.toLocaleString("es-MX", {
-    timeZone: "America/Mexico_City"
+    timeZone: "America/Mexico_City",
   });
 
   var insertNew =
@@ -260,28 +269,28 @@ router.put("/rac/:id", function(req, res) {
     req.params.id +
     "'";
 
-  sql.connect(constants.dbConfig, function(err) {
+  sql.connect(constants.dbConfig, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
 
-    request.query(insertNew, function(err, recordset) {
+    request.query(insertNew, function (err, recordset) {
       if (err) console.log(err);
 
       res.status(200).json({
         sucess: true,
         inserted: "OK",
-        err: "OK"
+        err: "OK",
       });
       //res.send("" + recordset[0].Id + "");
     });
   });
 });
 
-router.put("/racDesarrollo/:id", function(req, res) {
+router.put("/racDesarrollo/:id", function (req, res) {
   var now = new Date();
   var curDate = now.toLocaleString("es-MX", {
-    timeZone: "America/Mexico_City"
+    timeZone: "America/Mexico_City",
   });
 
   console.log(req.body);
@@ -324,26 +333,26 @@ router.put("/racDesarrollo/:id", function(req, res) {
   }
   console.log(insertNew);
 
-  sql.connect(constants.dbConfig, function(err) {
+  sql.connect(constants.dbConfig, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
 
-    request.query(insertNew, function(err, recordset) {
+    request.query(insertNew, function (err, recordset) {
       if (err) console.log(err);
 
       res.status(200).json({
         sucess: true,
         inserted: "OK",
-        err: "OK"
+        err: "OK",
       });
       //res.send("" + recordset[0].Id + "");
     });
   });
 });
 
-router.get("/tip2", function(req, res) {
-  sql.connect(constants.dbConfig, function(err) {
+router.get("/tip2", function (req, res) {
+  sql.connect(constants.dbConfig, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
@@ -351,7 +360,7 @@ router.get("/tip2", function(req, res) {
     console.log(req.query.tip1);
     request.query(
       "SELECT DISTINCT tip_2 as label,tip_2 as value FROM SQLCLUSTER.CasasAtlas.dbo.SYS_Tipificaciones where tip_1 = @FILTER",
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -360,8 +369,8 @@ router.get("/tip2", function(req, res) {
   });
 });
 
-router.get("/tip3", function(req, res) {
-  sql.connect(constants.dbConfig, function(err) {
+router.get("/tip3", function (req, res) {
+  sql.connect(constants.dbConfig, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
@@ -370,7 +379,7 @@ router.get("/tip3", function(req, res) {
     console.log(req.query.tip1, req.query.tip2);
     request.query(
       "SELECT DISTINCT tip_3 as label,tip_3 as value FROM SQLCLUSTER.CasasAtlas.dbo.SYS_Tipificaciones where tip_1 = @FILTER AND tip_2 = @FILTER2",
-      function(err, recordset) {
+      function (err, recordset) {
         if (err) console.log(err);
 
         res.send(recordset);
@@ -379,7 +388,7 @@ router.get("/tip3", function(req, res) {
   });
 });
 
-router.post("/rac", function(req, res) {
+router.post("/rac", function (req, res) {
   var RACS = JSON.parse(req.body.racs);
   var fRAC = RACS[0].tipo;
   var ticket = "";
@@ -407,7 +416,7 @@ router.post("/rac", function(req, res) {
 
   sql
     .connect(constants.dbCluster)
-    .then(function() {
+    .then(function () {
       var request = new sql.Request();
       request
         .query(
@@ -441,10 +450,10 @@ router.post("/rac", function(req, res) {
             req.body.racs +
             "')"
         )
-        .then(result => {
+        .then((result) => {
           return result; // Contiene los ID
         })
-        .then(async cols => {
+        .then(async (cols) => {
           const request = new sql.Request();
           return request.query(
             "UPDATE CasasAtlas.dbo.SYS_RACS SET clave_reporte = '" +
@@ -459,24 +468,24 @@ router.post("/rac", function(req, res) {
 
           return "result";
         })
-        .then(final => {
+        .then((final) => {
           res.status(200).json({
             sucess: true,
             clave_reporte: final[0].clave_reporte,
-            err: "OK"
+            err: "OK",
           });
           res.send(final);
         })
-        .catch(function(err) {
+        .catch(function (err) {
           console.log(err);
         });
     })
-    .catch(function(err) {
+    .catch(function (err) {
       console.log(err);
     });
 });
 
-router.post("/llamadas", function(req, res) {
+router.post("/llamadas", function (req, res) {
   var fecha_nacimiento = "";
   var tip_2 = "";
   if (req.body.fecha_nacimiento === "") {
@@ -547,11 +556,11 @@ router.post("/llamadas", function(req, res) {
     "')";
 
   console.log(query);
-  sql.connect(constants.dbCluster, function(err) {
+  sql.connect(constants.dbCluster, function (err) {
     if (err) console.log(err);
 
     var request = new sql.Request();
-    request.query(query, function(err, recordset) {
+    request.query(query, function (err, recordset) {
       if (err) console.log(err);
 
       res.send(recordset);
