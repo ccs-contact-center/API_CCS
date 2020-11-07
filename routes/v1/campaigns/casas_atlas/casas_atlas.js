@@ -147,7 +147,7 @@ router.put("/clientes/:client", function (req, res) {
 
   var entrega_vivienda;
 
-  if (req.body.entrega_vivienda === "null") {
+  if (req.body.entrega_vivienda === null) {
     entrega_vivienda = "NULL";
   } else {
     entrega_vivienda =
