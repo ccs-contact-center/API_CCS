@@ -51,6 +51,8 @@ const GetCampaigns = async (url, date) => {
     });
   });
 
+  
+
   var data = sql
     .connect(constants.dbCluster)
     .then(() => {
@@ -156,6 +158,7 @@ const GetCampaigns = async (url, date) => {
       table.columns.add("FirstAtteActor", sql.VarChar(255), { nullable: true });
       table.columns.add("SourceHangup", sql.VarChar(255), { nullable: true });
 
+   
       interOK.forEach((arr) => {
         table.rows.add(
           arr.Id,
@@ -168,25 +171,25 @@ const GetCampaigns = async (url, date) => {
           arr.Campaign,
           arr.Direction,
           arr.Sections,
-          arr.IsTaked,
-          arr.IsAbandoned,
-          arr.IsCancelled,
-          arr.IsInBoundAttended,
-          arr.IsOutBoundAttended,
-          arr.IsInBoundAbandoned,
-          arr.IsOutBoundAbandoned,
-          arr.IsInBoundCancelled,
-          arr.IsOutBoundCancelled,
-          arr.IsTransferred,
+          parseBoolean(arr.IsTaked),
+          parseBoolean(arr.IsAbandoned),
+          parseBoolean(arr.IsCancelled),
+          parseBoolean(arr.IsInBoundAttended),
+          parseBoolean(arr.IsOutBoundAttended),
+          parseBoolean(arr.IsInBoundAbandoned),
+          parseBoolean(arr.IsOutBoundAbandoned),
+          parseBoolean(arr.IsInBoundCancelled),
+          parseBoolean(arr.IsOutBoundCancelled),
+          parseBoolean(arr.IsTransferred),
           arr.TransferType,
           arr.TransferResult,
           arr.NumberOfTransferred,
-          arr.IsConferenced,
+          parseBoolean(arr.IsConferenced),
           arr.NumbersOfConferenced,
           arr.IsCallBack,
           arr.HasCallBack,
           arr.HasVoiceMail,
-          arr.SLPossitive,
+          parseBoolean(arr.SLPossitive),
           parseDate(arr.TimeStamp),
           parseDate(arr.TimeStampUTC),
           arr.DurationTime,
@@ -202,15 +205,15 @@ const GetCampaigns = async (url, date) => {
           arr.RequeuedTime,
           arr.RingingTime,
           arr.RingBackTime,
-          arr.OutOfHour,
+          parseBoolean(arr.OutOfHour),
           arr.Shift,
           arr.Process,
-          arr.TotalHolds,
-          arr.IsShortCallThreshold,
-          arr.IsLongCallThreshold,
-          arr.IsGhostCallThresHold,
+          arr.Holds === undefined ?'Chaleeeee' : arr.Holds,
+          parseBoolean(arr.IsShortCallThreshold),
+          parseBoolean(arr.IsLongCallThreshold),
+          parseBoolean(arr.IsGhostCallThresHold),
           arr.IsIVR,
-          arr.IsSentToAgentSearch,
+          parseBoolean(arr.IsSentToAgentSearch),
           arr.TrunkId,
           arr.TrunkType,
           arr.Prefix,
@@ -224,7 +227,7 @@ const GetCampaigns = async (url, date) => {
           arr.ContactName,
           arr.ContactAddress,
           arr.ManagementResult,
-          arr.IsGoalManagementResult,
+          parseBoolean(arr.IsGoalManagementResult),
           arr.Completed,
           arr.FirstAgent,
           arr.LastAgent,
@@ -245,8 +248,12 @@ const GetCampaigns = async (url, date) => {
         );
       });
 
+
+     
       const request = new sql.Request();
+
       return request.bulk(table);
+      
     })
     .then((data) => {
       return data;
@@ -264,9 +271,17 @@ function parseDate(input) {
   return new Date(
     moment
       .utc(input, "DD/MM/YYYY HH:mm:ss")
-      .subtract(4, "hours")
+      .subtract(6, "hours")
       .format("YYYY-MM-DD HH:mm:ss")
   );
+}
+
+function parseBoolean(input) {
+  if (input === "True") {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 router.get("/Insertar", async (req, res) => {
