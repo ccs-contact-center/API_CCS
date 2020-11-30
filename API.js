@@ -28,7 +28,6 @@ const { time } = require("console");
 const PORT = process.env.PORT;
 //const PORT = 8082;
 
-
 //Enabling CORS on API
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -52,7 +51,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
+/*app.use((req, res, next) => {
   var datetime = new Date();
   var logEntry = {
     date: datetime,
@@ -67,6 +66,7 @@ app.use((req, res, next) => {
 
   next();
 });
+*/
 
 //Para correr como standalone server
 
