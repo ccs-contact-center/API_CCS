@@ -31,5 +31,12 @@ module.exports = {
   mailPass: "Pow25925",
   mailHost: "smtp.office365.com",
   mailPort: 587,
-  mailSecure: false
+  mailSecure: false,
+
+
+  mailAccountAtlas: "css.notificaciones@atlasdesarrollos.com",
+  mailPassAtlas: "atlas78901",
+  mailHostAtlas: "smtp.gmail.com",
+  mailPortAtlas: 587,
+  mailSecureAtlas: false
 };
