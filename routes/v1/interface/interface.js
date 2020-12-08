@@ -52,6 +52,7 @@ router.post("/send-email-atlas", function (req, res) {
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
+      console.log("Esta madre ha fallado nuevamente :(")
       res.status(500).send("Ha ocurrido un error" + JSON.stringify(error));
     }
     console.log("Message %s sent: %s", info.messageId, info.response);
