@@ -35,7 +35,7 @@ module.exports = {
 
 
   mailAccountAtlas: "css.notificaciones@atlasdesarrollos.com",
-  mailPassAtlas: "atlas78901",
+  mailPassAtlas: process.env.MAIL_PSW,
   mailHostAtlas: "smtp.gmail.com",
   mailPortAtlas: 587,
   mailSecureAtlas: false
