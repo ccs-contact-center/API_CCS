@@ -51,8 +51,6 @@ const GetCampaigns = async (url, date) => {
     });
   });
 
-  
-
   var data = sql
     .connect(constants.dbCluster)
     .then(() => {
@@ -158,7 +156,6 @@ const GetCampaigns = async (url, date) => {
       table.columns.add("FirstAtteActor", sql.VarChar(255), { nullable: true });
       table.columns.add("SourceHangup", sql.VarChar(255), { nullable: true });
 
-   
       interOK.forEach((arr) => {
         table.rows.add(
           arr.Id,
@@ -208,7 +205,7 @@ const GetCampaigns = async (url, date) => {
           parseBoolean(arr.OutOfHour),
           arr.Shift,
           arr.Process,
-          arr.Holds === undefined ?'Chaleeeee' : arr.Holds,
+          arr.Holds,
           parseBoolean(arr.IsShortCallThreshold),
           parseBoolean(arr.IsLongCallThreshold),
           parseBoolean(arr.IsGhostCallThresHold),
@@ -228,7 +225,7 @@ const GetCampaigns = async (url, date) => {
           arr.ContactAddress,
           arr.ManagementResult,
           parseBoolean(arr.IsGoalManagementResult),
-          arr.Completed,
+          parseBoolean(arr.Completed),
           arr.FirstAgent,
           arr.LastAgent,
           arr.TotalAgents,
@@ -248,12 +245,9 @@ const GetCampaigns = async (url, date) => {
         );
       });
 
-
-     
       const request = new sql.Request();
 
       return request.bulk(table);
-      
     })
     .then((data) => {
       return data;
@@ -277,7 +271,7 @@ function parseDate(input) {
 }
 
 function parseBoolean(input) {
-  if (input === "True") {
+  if (input === "True" || input === "1") {
     return true;
   } else {
     return false;
@@ -306,7 +300,7 @@ router.get("/AcumuladoresCampanias/:format", (req, res) => {
       msg:
         "El tipo 4 'Custom' debe de ir acompañado de los parametros fecha_ini y fecha_fin.",
       ej:
-        "https://api.ccscontactcenter.com/inConcertAPI/Campaigns/AcumuladoresCampanias/html?intervalo=4&agrupado=1&totalizado=0&campaign=safelite||&skill=-1&fecha_ini=01/10/2020&fecha_fin=10/10/2020",
+        "https://api.ccscontactcenter.com/inConcertAPI/v1/Campaigns/AcumuladoresCampanias/html?intervalo=4&agrupado=1&totalizado=0&campaign=safelite||&skill=-1&fecha_ini=01/10/2020&fecha_fin=10/10/2020",
     });
   } else {
     sql.connect(constants.dbCluster, (err) => {
@@ -359,7 +353,7 @@ router.get("/AcumuladoresCampanias/:format", (req, res) => {
 });
 
 router.get("/Test", (req, res) => {
-  res.send({ Test: "ok" });
+  res.send({ Test: "OK" });
 });
 
 module.exports = router;
