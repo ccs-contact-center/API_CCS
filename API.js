@@ -20,10 +20,7 @@ log4js.configure({
 const logger = log4js.getLogger("CCS");
 var WebSocket = require("ws");
 var Clients = require("./routes/socket/clients");
-const { now, max } = require("moment");
 const clients = new Clients();
-var moment = require("moment");
-const { time } = require("console");
 
 const PORT = process.env.PORT;
 //const PORT = 8082;
