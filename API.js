@@ -20,14 +20,10 @@ log4js.configure({
 const logger = log4js.getLogger("CCS");
 var WebSocket = require("ws");
 var Clients = require("./routes/socket/clients");
-const { now, max } = require("moment");
 const clients = new Clients();
-var moment = require("moment");
-const { time } = require("console");
 
 const PORT = process.env.PORT;
 //const PORT = 8082;
-
 
 //Enabling CORS on API
 app.use((req, res, next) => {
@@ -52,7 +48,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
+/*app.use((req, res, next) => {
   var datetime = new Date();
   var logEntry = {
     date: datetime,
@@ -67,6 +63,7 @@ app.use((req, res, next) => {
 
   next();
 });
+*/
 
 //Para correr como standalone server
 

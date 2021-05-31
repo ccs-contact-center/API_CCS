@@ -2,8 +2,8 @@ var router = require("express").Router();
 var sql = require("mssql");
 var os = require("os");
 var moment = require("moment");
-var constants = require("../../../constants");
-var utils = require("../../../utils.js");
+var constants = require("../../../../constants");
+var utils = require("../../../../utils.js");
 var fetch = require("node-fetch");
 var exjwt = require("express-jwt");
 var html_tablify = require("html-tablify");
@@ -15,12 +15,13 @@ const jwtMW = exjwt({
 });
 
 const GetCampaigns = async (url, date) => {
-  const interactions = [];
+  let interactions = [];
 
   try {
     let i = 1;
     while (url) {
-      const response = await await fetch(url + "/" + i, {
+      let urlOK = url + i;
+      const response = await await fetch(urlOK, {
         headers: {
           "x-api-key": "c9a6dae22a293af4ead2a0ef9392e271",
         },
@@ -33,6 +34,7 @@ const GetCampaigns = async (url, date) => {
       const res = await response.json();
 
       interactions.push(res.items);
+
       i = i + 1;
 
       res.items.length === 2000 ? (url = url) : (url = null);
@@ -40,6 +42,14 @@ const GetCampaigns = async (url, date) => {
   } catch (e) {
     console.log(e);
   }
+
+  let interOK = [];
+
+  interactions.forEach((page) => {
+    page.forEach((item) => {
+      interOK.push(item);
+    });
+  });
 
   var data = sql
     .connect(constants.dbCluster)
@@ -146,7 +156,7 @@ const GetCampaigns = async (url, date) => {
       table.columns.add("FirstAtteActor", sql.VarChar(255), { nullable: true });
       table.columns.add("SourceHangup", sql.VarChar(255), { nullable: true });
 
-      interactions[0].forEach((arr) => {
+      interOK.forEach((arr) => {
         table.rows.add(
           arr.Id,
           arr.VirtualCC,
@@ -158,25 +168,25 @@ const GetCampaigns = async (url, date) => {
           arr.Campaign,
           arr.Direction,
           arr.Sections,
-          arr.IsTaked,
-          arr.IsAbandoned,
-          arr.IsCancelled,
-          arr.IsInBoundAttended,
-          arr.IsOutBoundAttended,
-          arr.IsInBoundAbandoned,
-          arr.IsOutBoundAbandoned,
-          arr.IsInBoundCancelled,
-          arr.IsOutBoundCancelled,
-          arr.IsTransferred,
+          parseBoolean(arr.IsTaked),
+          parseBoolean(arr.IsAbandoned),
+          parseBoolean(arr.IsCancelled),
+          parseBoolean(arr.IsInBoundAttended),
+          parseBoolean(arr.IsOutBoundAttended),
+          parseBoolean(arr.IsInBoundAbandoned),
+          parseBoolean(arr.IsOutBoundAbandoned),
+          parseBoolean(arr.IsInBoundCancelled),
+          parseBoolean(arr.IsOutBoundCancelled),
+          parseBoolean(arr.IsTransferred),
           arr.TransferType,
           arr.TransferResult,
           arr.NumberOfTransferred,
-          arr.IsConferenced,
+          parseBoolean(arr.IsConferenced),
           arr.NumbersOfConferenced,
           arr.IsCallBack,
           arr.HasCallBack,
           arr.HasVoiceMail,
-          arr.SLPossitive,
+          parseBoolean(arr.SLPossitive),
           parseDate(arr.TimeStamp),
           parseDate(arr.TimeStampUTC),
           arr.DurationTime,
@@ -192,15 +202,15 @@ const GetCampaigns = async (url, date) => {
           arr.RequeuedTime,
           arr.RingingTime,
           arr.RingBackTime,
-          arr.OutOfHour,
+          parseBoolean(arr.OutOfHour),
           arr.Shift,
           arr.Process,
-          arr.TotalHolds,
-          arr.IsShortCallThreshold,
-          arr.IsLongCallThreshold,
-          arr.IsGhostCallThresHold,
+          arr.Holds,
+          parseBoolean(arr.IsShortCallThreshold),
+          parseBoolean(arr.IsLongCallThreshold),
+          parseBoolean(arr.IsGhostCallThresHold),
           arr.IsIVR,
-          arr.IsSentToAgentSearch,
+          parseBoolean(arr.IsSentToAgentSearch),
           arr.TrunkId,
           arr.TrunkType,
           arr.Prefix,
@@ -214,8 +224,8 @@ const GetCampaigns = async (url, date) => {
           arr.ContactName,
           arr.ContactAddress,
           arr.ManagementResult,
-          arr.IsGoalManagementResult,
-          arr.Completed,
+          parseBoolean(arr.IsGoalManagementResult),
+          parseBoolean(arr.Completed),
           arr.FirstAgent,
           arr.LastAgent,
           arr.TotalAgents,
@@ -236,6 +246,7 @@ const GetCampaigns = async (url, date) => {
       });
 
       const request = new sql.Request();
+
       return request.bulk(table);
     })
     .then((data) => {
@@ -254,9 +265,17 @@ function parseDate(input) {
   return new Date(
     moment
       .utc(input, "DD/MM/YYYY HH:mm:ss")
-      .subtract(5, "hours")
+      .subtract(6, "hours")
       .format("YYYY-MM-DD HH:mm:ss")
   );
+}
+
+function parseBoolean(input) {
+  if (input === "True" || input === "1") {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 router.get("/Insertar", async (req, res) => {
@@ -269,34 +288,72 @@ router.get("/Insertar", async (req, res) => {
   res.send(x);
 });
 
-router.get("/AcumuladoresCampanias", (req, res) => {
-  sql.connect(constants.dbCluster, (err) => {
-    if (err) console.log(err);
+router.get("/AcumuladoresCampanias/:format", (req, res) => {
+  let notDate =
+    req.query.fecha_ini === undefined || req.query.fecha_fin === undefined;
 
-    var request = new sql.Request();
-    request.input("INTERVALO", req.query.intervalo);
-    request.input("CAMPAIGN", req.query.campaign);
-    request.input("FECHA_INI", req.query.fecha_ini);
-    request.input("FECHA_FIN", req.query.fecha_fin);
-    request.query(
-      `EXEC inConcert.dbo.AcumuladoresCampania @INTERVALO = @INTERVALO ,@CAMPAIGN = @CAMPAIGN,@FECHA_INI = @FECHA_INI,@FECHA_FIN = @FECHA_FIN`,
-      (err, recordset) => {
-        if (err) console.log(err);
+  let custom = parseInt(req.query.intervalo);
 
-        var options = {
-          data: recordset,
-        };
+  if (notDate === true && custom === 4) {
+    res.status(400).send({
+      error: true,
+      msg:
+        "El tipo 4 'Custom' debe de ir acompañado de los parametros fecha_ini y fecha_fin.",
+      ej:
+        "https://api.ccscontactcenter.com/inConcertAPI/v1/Campaigns/AcumuladoresCampanias/html?intervalo=4&agrupado=1&totalizado=0&campaign=safelite||&skill=-1&fecha_ini=01/10/2020&fecha_fin=10/10/2020",
+    });
+  } else {
+    sql.connect(constants.dbCluster, (err) => {
+      if (err) console.log(err);
 
-        var html_data = html_tablify.tablify(options);
+      var request = new sql.Request();
+      request.input("INTERVALO", req.query.intervalo);
+      request.input("AGRUPADO", req.query.agrupado);
+      request.input("TOTALIZADO", req.query.totalizado);
+      request.input("CAMPAIGN", req.query.campaign);
+      request.input("SKILL", req.query.skill);
+      request.input(
+        "FECHA_INI",
+        moment(req.query.fecha_ini, "DD/MM/YYYY").format("MM-DD-YYYY")
+      );
+      request.input(
+        "FECHA_FIN",
+        moment(req.query.fecha_fin, "DD/MM/YYYY").format("MM-DD-YYYY")
+      );
+      request.query(
+        `EXEC inConcert.dbo.AcumuladoresCampania @INTERVALO = @INTERVALO, @AGRUPADO = @AGRUPADO, @TOTALIZADO=@TOTALIZADO, @CAMPAIGN = @CAMPAIGN,@SKILL = @SKILL,@FECHA_INI = @FECHA_INI,@FECHA_FIN = @FECHA_FIN`,
+        (err, recordset) => {
+          if (err) console.log(err);
 
-        res.send(html_data);
-      }
-    );
-  });
+          var style = `<style> table{border:1px solid #1c6ea4;background-color:#eee;width:100%;text-align:center;border-collapse:collapse}table td,table th{border:1px solid #aaa;padding:3px 2px}table tbody td{font-size:13px}table tr:nth-child(even){background:#d0e4f5}table th{background:#1c6ea4;background:-moz-linear-gradient(top,#5592bb 0,#327cad 66%,#1c6ea4 100%);background:-webkit-linear-gradient(top,#5592bb 0,#327cad 66%,#1c6ea4 100%);background:linear-gradient(to bottom,#5592bb 0,#327cad 66%,#1c6ea4 100%);border-bottom:2px solid #444}table th{font-size:15px;font-weight:700;color:#fff;border-left:2px solid #d0e4f5}table th:first-child{border-left:none}</style> `;
+
+          var options = {
+            data: recordset,
+          };
+
+          var html_data = html_tablify.tablify(options);
+
+          if (recordset.length === 0) {
+            res
+              .status(404)
+              .send({ error: false, msg: "No hay resultados", ej: "empty" });
+          } else {
+            if (req.params.format === "html") {
+              res.send(style + html_data);
+            } else if (req.params.format === "json") {
+              res.send(recordset);
+            } else {
+              res.send("Formato no valido, debe ser html o json");
+            }
+          }
+        }
+      );
+    });
+  }
 });
 
 router.get("/Test", (req, res) => {
-  res.send({ Test: "ok" });
+  res.send({ Test: "OK" });
 });
 
 module.exports = router;

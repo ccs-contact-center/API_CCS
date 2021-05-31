@@ -5,7 +5,7 @@ module.exports = {
     server: "10.0.0.245\\CCS",
     database: "CCS",
     connectionTimeout: 800000,
-    requestTimeout: 800000
+    requestTimeout: 800000,
   },
 
   dbCluster: {
@@ -14,7 +14,10 @@ module.exports = {
     server: "10.0.0.152",
     database: "CasasAtlas",
     connectionTimeout: 800000,
-    requestTimeout: 800000
+    requestTimeout: 800000,
+    //options: {
+    //  packetSize: 16384,
+    //},
   },
 
   db40: {
@@ -23,7 +26,7 @@ module.exports = {
     server: "10.0.0.40",
     database: "Ventas_Bitacora",
     connectionTimeout: 800000,
-    requestTimeout: 800000
+    requestTimeout: 800000,
   },
 
   currentHost: "http://api.ccscontactcenter.com/",
@@ -31,5 +34,11 @@ module.exports = {
   mailPass: "Pow25925",
   mailHost: "smtp.office365.com",
   mailPort: 587,
-  mailSecure: false
+  mailSecure: false,
+
+  mailAccountAtlas: "css.notificaciones@atlasdesarrollos.com",
+  mailPassAtlas: process.env.MAIL_PSW,
+  mailHostAtlas: "smtp.gmail.com",
+  mailPortAtlas: 587,
+  mailSecureAtlas: false,
 };
