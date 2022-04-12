@@ -23,7 +23,7 @@
     "njwt": "^1.0.0",
     "node-fetch": "^2.6.1",
     "nodemailer": "^6.4.16",
-    "simple-git": "^1.122.0",
+    "simple-git": "^3.5.0",
     "ws": "^7.4.6",
     "xml-js": "^1.6.11",
     "xml2json-light": "^1.0.6"
