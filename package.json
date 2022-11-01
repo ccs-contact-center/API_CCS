@@ -14,7 +14,7 @@
     "express": "^4.17.1",
     "express-jwt": "^5.3.1",
     "express-ws": "^4.0.0",
-    "html-tablify": "^2.0.2",
+    "html-tablify": "^2.0.4",
     "jsonwebtoken": "^8.5.1",
     "log4js": "^6.3.0",
     "md5": "^2.2.1",
