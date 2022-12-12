@@ -11,7 +11,7 @@
   "dependencies": {
     "base64-url": "^2.3.3",
     "compression": "^1.7.4",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-jwt": "^5.3.1",
     "express-ws": "^4.0.0",
     "html-tablify": "^2.0.2",
